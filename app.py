@@ -14,68 +14,104 @@ st.set_page_config(
     layout="wide",
 )
 
-# Visual style inspired by mayoclinic.org/diseases-conditions: navy/blue palette,
-# clean sans-serif type, top bar + breadcrumb, pill-style badges.
+if "sidebar_open" not in st.session_state:
+    st.session_state.sidebar_open = True
+
+# Visual style: Mayo-inspired navy/blue palette with a futuristic gradient/glow treatment.
 BADGE_COLORS = {
     "emergency": "#C8102E",
     "see_doctor": "#0067B1",
     "self_care": "#2E7D32",
 }
 
+sidebar_hide_css = (
+    'section[data-testid="stSidebar"] { display: none !important; }'
+    if not st.session_state.sidebar_open
+    else ""
+)
+
 st.markdown(
-    """
+    f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap');
 
-    html, body, [class*="css"] {
+    html, body, [class*="css"] {{
         font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    }
+    }}
 
-    .mc-topbar {
-        background-color: #0B2D4D;
+    .stApp {{
+        background: linear-gradient(180deg, #F5FAFF 0%, #FFFFFF 320px);
+    }}
+
+    .mc-topbar {{
+        background: linear-gradient(90deg, #0B2D4D 0%, #0E3A66 55%, #0067B1 100%);
         color: #FFFFFF;
         margin: -1rem -1rem 0 -1rem;
-        padding: 0.85rem 1.5rem;
-        border-bottom: 4px solid #0067B1;
+        padding: 0.9rem 1.5rem;
+        border-bottom: 3px solid #00C2FF;
         font-size: 1rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
+        font-weight: 700;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-    }
-    .mc-breadcrumb {
+        box-shadow: 0 2px 18px rgba(0, 103, 177, 0.28);
+    }}
+    .mc-breadcrumb {{
         margin: 0.75rem 0 0.25rem 0;
         color: #5B6B79;
         font-size: 0.85rem;
-    }
+    }}
 
-    h1, h2, h3 { color: #0B2D4D !important; font-weight: 700 !important; }
-    a, a:visited { color: #0067B1; }
+    h1, h2, h3 {{ color: #0B2D4D !important; font-weight: 800 !important; }}
+    h1 {{
+        background: linear-gradient(90deg, #0B2D4D 0%, #0067B1 55%, #00A6E0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }}
+    a, a:visited {{ color: #0067B1; }}
 
-    .stButton > button {
-        background-color: #0067B1;
+    .stButton > button {{
+        background: linear-gradient(90deg, #0067B1 0%, #0090D1 100%);
         color: #FFFFFF;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         font-weight: 600;
-        padding: 0.5rem 1.4rem;
-    }
-    .stButton > button:hover { background-color: #00517F; color: #FFFFFF; }
-    .stButton > button:disabled { background-color: #C7D3DB; color: #FFFFFF; }
+        padding: 0.55rem 1.5rem;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 2px 10px rgba(0, 103, 177, 0.25);
+    }}
+    .stButton > button:hover {{
+        box-shadow: 0 4px 18px rgba(0, 144, 209, 0.45);
+        transform: translateY(-1px);
+    }}
+    .stButton > button:disabled {{
+        background: #C7D3DB;
+        color: #FFFFFF;
+        box-shadow: none;
+        transform: none;
+    }}
 
-    section[data-testid="stSidebar"] {
+    section[data-testid="stSidebar"] {{
         background-color: #F4F6F8;
         border-right: 1px solid #E1E5E9;
-    }
+    }}
+    {sidebar_hide_css}
 
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        border-radius: 6px !important;
+    div[data-testid="stVerticalBlockBorderWrapper"] {{
+        border-radius: 10px !important;
         border: 1px solid #E1E5E9 !important;
         box-shadow: 0 1px 3px rgba(11, 45, 77, 0.06);
-    }
+        transition: box-shadow 0.2s ease;
+    }}
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover {{
+        box-shadow: 0 6px 24px rgba(0, 103, 177, 0.16);
+    }}
 
-    .stProgress > div > div > div > div { background-color: #0067B1; }
+    .stProgress > div > div > div > div {{
+        background: linear-gradient(90deg, #0067B1, #00C2FF);
+    }}
 
-    .mc-badge {
+    .mc-badge {{
         display: inline-block;
         padding: 4px 12px;
         border-radius: 999px;
@@ -83,12 +119,33 @@ st.markdown(
         font-weight: 700;
         letter-spacing: 0.02em;
         color: #FFFFFF;
-    }
+    }}
+
+    /* Bigger, more futuristic search box */
+    div[data-baseweb="select"] > div {{
+        min-height: 3.3rem;
+        border-radius: 14px !important;
+        border: 1.5px solid #D3DEE6 !important;
+        font-size: 1.08rem;
+        background-color: #FBFDFF;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }}
+    div[data-baseweb="select"]:focus-within > div {{
+        border-color: #0067B1 !important;
+        box-shadow: 0 0 0 4px rgba(0, 103, 177, 0.15), 0 0 22px rgba(0, 194, 255, 0.3);
+    }}
     </style>
-    <div class="mc-topbar">🩺 Symptom Checker</div>
+    <div class="mc-topbar">🩺&nbsp; Symptom Checker</div>
     """,
     unsafe_allow_html=True,
 )
+
+menu_col, _ = st.columns([0.14, 0.86])
+with menu_col:
+    toggle_label = "☰ Hide menu" if st.session_state.sidebar_open else "☰ Show menu"
+    if st.button(toggle_label, key="sidebar_toggle"):
+        st.session_state.sidebar_open = not st.session_state.sidebar_open
+        st.rerun()
 
 # ---------------------------------------------------------------- scoring ---
 
@@ -128,16 +185,6 @@ st.caption(
     "It is **not** a diagnosis."
 )
 
-with st.expander("⚠️ Important disclaimer — please read", expanded=False):
-    st.warning(
-        "This tool is for **educational purposes only** and does not provide medical "
-        "or mental health advice, diagnosis, or treatment. It uses simple symptom "
-        "matching, not a clinical or AI model. Always consult a qualified doctor or "
-        "mental health professional for any health concern. If you believe you are "
-        "having a medical or mental health emergency, contact your local emergency "
-        "services immediately."
-    )
-
 # ------------------------------------------------------------------ sidebar ---
 
 st.sidebar.header("Filters")
@@ -171,7 +218,7 @@ symptom_pool = build_symptom_pool(filtered_diseases) if filtered_diseases else [
 selected_symptoms = st.multiselect(
     "Start typing to search, or scroll to browse. Select as many as apply.",
     options=symptom_pool,
-    placeholder="e.g. persistent sadness, headache, shortness of breath...",
+    placeholder="🔍  e.g. persistent sadness, headache, shortness of breath...",
 )
 
 analyze = st.button("Analyze symptoms", type="primary", disabled=not selected_symptoms)
@@ -243,3 +290,13 @@ st.caption(
     "Built for educational/hackathon purposes. Always consult a licensed medical "
     "or mental health professional for real diagnosis and treatment."
 )
+
+with st.expander("⚠️ Important disclaimer — please read", expanded=False):
+    st.warning(
+        "This tool is for **educational purposes only** and does not provide medical "
+        "or mental health advice, diagnosis, or treatment. It uses simple symptom "
+        "matching, not a clinical or AI model. Always consult a qualified doctor or "
+        "mental health professional for any health concern. If you believe you are "
+        "having a medical or mental health emergency, contact your local emergency "
+        "services immediately."
+    )
