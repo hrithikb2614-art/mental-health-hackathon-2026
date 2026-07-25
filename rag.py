@@ -202,6 +202,5 @@ def generate_answer(question: str, matches: list) -> str:
                 "content": f"Reference excerpts:\n{context}\n\nQuestion: {question}",
             },
         ],
-        temperature=0.3,
     )
     return response.content[0].text
