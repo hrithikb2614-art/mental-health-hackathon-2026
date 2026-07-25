@@ -15,6 +15,16 @@ from kids_data import (
     KIDS_THEMES,
     KIDS_RESOURCES,
 )
+from mental_health_data import (
+    ANSWER_OPTIONS as MH_ANSWER_OPTIONS,
+    DEPRESSION_QUESTIONS,
+    ANXIETY_QUESTIONS,
+    SAFETY_QUESTION as MH_SAFETY_QUESTION,
+    DEPRESSION_SEVERITY_BANDS,
+    ANXIETY_SEVERITY_BANDS,
+    MENTAL_HEALTH_RESOURCES,
+    severity_band,
+)
 
 st.set_page_config(
     page_title="Symptom Checker — Physical & Mental Health",
@@ -255,11 +265,12 @@ st.sidebar.markdown(
 
 # --------------------------------------------------------------------- tabs ---
 
-tab_kids, tab_checker, tab_assistant, tab_upload, tab_hospital = st.tabs(
+tab_kids, tab_checker, tab_assistant, tab_mental_health, tab_upload, tab_hospital = st.tabs(
     [
         i18n.t(lang, "tab_kids"),
         i18n.t(lang, "tab_checker"),
         i18n.t(lang, "tab_assistant"),
+        i18n.t(lang, "tab_mental_health"),
         i18n.t(lang, "tab_upload"),
         i18n.t(lang, "tab_hospital"),
     ]
@@ -479,7 +490,128 @@ with tab_assistant:
 
             st.session_state.assistant_history.append({"role": "assistant", "content": answer})
 
-# =================================================== Tab 4: Upload Documents ===
+# ================================================== Tab 4: Mental Health ===
+
+with tab_mental_health:
+    st.subheader(i18n.t(lang, "mh_subheader"))
+    st.caption(i18n.t(lang, "mh_caption"))
+
+    with st.expander(i18n.t(lang, "mh_disclaimer_title"), expanded=False):
+        st.warning(i18n.t(lang, "mh_disclaimer_body"))
+    if show_translation_note:
+        st.info(i18n.t(lang, "translation_fallback_note"))
+
+    mh_questions_t = (bundle or {}).get("mh_questions", {})
+    mh_severity_labels_t = (bundle or {}).get("mh_severity_labels", {})
+
+    st.markdown(f"**{i18n.t(lang, 'mh_depression_header')}**")
+    depression_answers = {}
+    for q in DEPRESSION_QUESTIONS:
+        depression_answers[q["key"]] = st.radio(
+            mh_questions_t.get(q["key"], q["prompt"]),
+            MH_ANSWER_OPTIONS,
+            index=None,
+            key=f"mh_{q['key']}",
+            horizontal=True,
+        )
+
+    st.divider()
+    st.markdown(f"**{i18n.t(lang, 'mh_anxiety_header')}**")
+    anxiety_answers = {}
+    for q in ANXIETY_QUESTIONS:
+        anxiety_answers[q["key"]] = st.radio(
+            mh_questions_t.get(q["key"], q["prompt"]),
+            MH_ANSWER_OPTIONS,
+            index=None,
+            key=f"mh_{q['key']}",
+            horizontal=True,
+        )
+
+    st.divider()
+    st.markdown(i18n.t(lang, "mh_one_more_question"))
+    mh_safety_answer = st.radio(
+        mh_questions_t.get("safety", MH_SAFETY_QUESTION["prompt"]),
+        MH_ANSWER_OPTIONS,
+        index=None,
+        key="mh_safety",
+        horizontal=True,
+    )
+
+    all_answered = (
+        all(v is not None for v in depression_answers.values())
+        and all(v is not None for v in anxiety_answers.values())
+        and mh_safety_answer is not None
+    )
+
+    mh_submit = st.button(
+        i18n.t(lang, "mh_submit_button"), type="primary", key="mh_submit", disabled=not all_answered
+    )
+
+    if mh_safety_answer in MH_ANSWER_OPTIONS[1:]:
+        st.error(i18n.t(lang, "kids_safety_alert_title"), icon="💙")
+        st.markdown(i18n.t(lang, "mh_safety_alert_body"))
+        st.markdown(f"- {i18n.t(lang, 'kids_988_line')}")
+        st.markdown(f"- {i18n.t(lang, 'kids_crisis_text_line')}")
+        st.divider()
+
+    if not all_answered:
+        st.info(i18n.t(lang, "mh_prompt"))
+    elif mh_submit or "mh_results_shown" in st.session_state:
+        if mh_submit:
+            st.session_state["mh_results_shown"] = True
+
+        answer_scores = {opt: i for i, opt in enumerate(MH_ANSWER_OPTIONS)}
+        dep_score = sum(answer_scores[v] for v in depression_answers.values()) + answer_scores[mh_safety_answer]
+        anx_score = sum(answer_scores[v] for v in anxiety_answers.values())
+
+        dep_label, dep_color = severity_band(dep_score, DEPRESSION_SEVERITY_BANDS)
+        anx_label, anx_color = severity_band(anx_score, ANXIETY_SEVERITY_BANDS)
+
+        def mh_label(label):
+            return mh_severity_labels_t.get(label, label)
+
+        st.markdown(i18n.t(lang, "mh_results_header"))
+        with st.container(border=True):
+            st.markdown(
+                f":{dep_color}[{i18n.t(lang, 'mh_depression_result', label=mh_label(dep_label), score=dep_score)}]"
+            )
+            st.progress(min(dep_score / 27, 1.0))
+            with st.expander(i18n.t(lang, "mh_learn_more_depression")):
+                dep_info = localize_diseases(
+                    {"Major Depressive Disorder": DISEASES["Major Depressive Disorder"]}
+                )["Major Depressive Disorder"]
+                st.write(dep_info["description"])
+                if dep_info.get("mayo_summary"):
+                    st.write(dep_info["mayo_summary"])
+                st.caption(f"[Mayo Clinic]({dep_info['mayo_url']})")
+
+        with st.container(border=True):
+            st.markdown(
+                f":{anx_color}[{i18n.t(lang, 'mh_anxiety_result', label=mh_label(anx_label), score=anx_score)}]"
+            )
+            st.progress(min(anx_score / 12, 1.0))
+            with st.expander(i18n.t(lang, "mh_learn_more_anxiety")):
+                anx_info = localize_diseases(
+                    {"Generalized Anxiety Disorder": DISEASES["Generalized Anxiety Disorder"]}
+                )["Generalized Anxiety Disorder"]
+                st.write(anx_info["description"])
+                if anx_info.get("mayo_summary"):
+                    st.write(anx_info["mayo_summary"])
+                st.caption(f"[Mayo Clinic]({anx_info['mayo_url']})")
+
+        st.caption(i18n.t(lang, "mh_results_note"))
+
+        st.divider()
+        st.markdown(i18n.t(lang, "mh_resources_header"))
+        resource_details = i18n.MENTAL_HEALTH_RESOURCE_DETAILS_I18N.get(
+            lang, i18n.MENTAL_HEALTH_RESOURCE_DETAILS_I18N["en"]
+        )
+        for (label, _detail, url), localized_detail in zip(MENTAL_HEALTH_RESOURCES, resource_details):
+            st.markdown(f"- **[{label}]({url})**: {localized_detail}")
+
+    st.caption(i18n.t(lang, "mh_footer_note"))
+
+# =================================================== Tab 5: Upload Documents ===
 
 with tab_upload:
     st.subheader(i18n.t(lang, "upload_subheader"))
@@ -518,7 +650,7 @@ with tab_upload:
             elif entered_password:
                 st.error(i18n.t(lang, "upload_incorrect_password"))
 
-# ==================================================== Tab 5: Find a Hospital ===
+# ==================================================== Tab 6: Find a Hospital ===
 
 with tab_hospital:
     st.subheader(i18n.t(lang, "hospital_subheader"))

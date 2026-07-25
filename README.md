@@ -13,26 +13,35 @@ mental health emergency, contact your local emergency services immediately.
 
 ## Features
 
-The app has five tabs, and a sidebar language picker (English, Spanish,
+The app has six tabs, and a sidebar language picker (English, Spanish,
 French, Hindi — see [Languages](#languages) below):
 
 1. **Kids & Teens Check-In** — a supportive, non-diagnostic self-reflection
    survey for young people. Surfaces gentle themes instead of condition
    labels and always shows curated resources (NAMI, MHA National, NIMH,
    SAMHSA, 988, Crisis Text Line).
-2. **Symptom Checker** — covers 30+ conditions across physical illness
-   (cold, flu, COVID-19, migraine, UTI, diabetes, etc.) and mental health
-   (depression, anxiety, PTSD, OCD, bipolar disorder, ADHD, etc.), with a
-   multi-select symptom picker, ranked matches with a match-score bar,
-   matched/missing symptoms, suggested next steps, a Mayo Clinic summary per
-   condition, and an automatic safety banner with crisis hotline info if
-   emergency symptoms are selected.
+2. **Symptom Checker** — covers 57 conditions across physical illness (45
+   conditions: cold, flu, COVID-19, migraine, chickenpox, croup, measles,
+   meningitis, Lyme disease, strep throat, ringworm, pinkeye, and more,
+   informed by AAP/state-health-department childcare illness references)
+   and mental health (12 conditions: depression, anxiety, PTSD, OCD,
+   bipolar disorder, ADHD, etc.), with a multi-select symptom picker (220+
+   symptom labels), ranked matches with a match-score bar, matched/missing
+   symptoms, suggested next steps, a Mayo Clinic summary per condition, and
+   an automatic safety banner with crisis hotline info if emergency
+   symptoms are selected (chest pain, stiff neck, severe bleeding, etc.).
 3. **AI Assistant** — a RAG-powered chat that answers questions grounded in
    documents loaded into a local knowledge base (see setup below). Falls
    back to a clear setup message if not configured.
-4. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
+4. **Mental Health Check-In** — a private, adult self-check-in inspired by
+   the widely used PHQ-9 (depression) and GAD-7 (anxiety) clinical
+   screening questionnaires, paraphrased for general wellness use. Scores
+   two indicators (Depression 0-27, Anxiety 0-12) into standard severity
+   bands, links to the relevant condition write-up, and always shows crisis
+   resources — never a diagnosis.
+5. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
    `.pdf` files to the shared knowledge base the AI Assistant searches.
-5. **Find a Hospital** — click "Use my location" (uses your browser's
+6. **Find a Hospital** — click "Use my location" (uses your browser's
    geolocation) or type a city/address/zip, and see nearby hospitals on a
    free map with a distance-sorted list (address, phone, one-tap
    directions). Uses OpenStreetMap's free Nominatim (geocoding) and
@@ -92,16 +101,18 @@ Hindi:
 - All UI chrome, navigation, and safety-critical text (crisis hotlines,
   emergency messages, urgency labels) is hand-translated in `i18n.py` and
   always available with no setup.
-- The larger dynamic content — the 32 condition descriptions, the symptom
-  vocabulary, and the Kids Check-In questions/themes — is translated on
-  first use via the configured AI Assistant (`translate.py`) and cached to
-  disk per language (`data/translations/{lang}.json`, gitignored), so each
-  language is only translated once. Symptom matching in the Symptom Checker
-  still works correctly in any language, since the translated symptom
-  labels are substituted consistently everywhere they appear.
+- The larger dynamic content — the 57 condition descriptions, the symptom
+  vocabulary, the Kids Check-In questions/themes, and the Mental Health
+  Check-In questions — is translated on first use via the configured AI
+  Assistant (`translate.py`, two API calls: diseases+symptoms is the bulk,
+  Kids/Mental-Health content is much smaller) and cached to disk per
+  language (`data/translations/{lang}.json`, gitignored), so each language
+  is only translated once. Symptom matching in the Symptom Checker still
+  works correctly in any language, since the translated symptom labels are
+  substituted consistently everywhere they appear.
 - Without `ANTHROPIC_API_KEY` configured, switching languages still
-  translates the UI chrome, but the Symptom Checker and Kids Check-In
-  content show a note and fall back to English.
+  translates the UI chrome, but the Symptom Checker, Kids Check-In, and
+  Mental Health Check-In content show a note and fall back to English.
 - The AI Assistant tab answers in whichever language is selected — no
   extra setup, it just tells Claude which language to reply in.
 

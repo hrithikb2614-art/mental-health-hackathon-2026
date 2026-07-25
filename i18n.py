@@ -213,6 +213,48 @@ UI_STRINGS = {
             "that are not relevant to you. This is not a diagnosis — please consult "
             "a healthcare professional to confirm any condition."
         ),
+        "tab_mental_health": "🧠 Mental Health Check-In",
+        "mh_subheader": "A moment for your mental health",
+        "mh_caption": (
+            "A short, private self-check-in inspired by widely used clinical screening "
+            "questionnaires (PHQ-9 for mood, GAD-7 for anxiety). It's not a diagnosis — "
+            "just a way to notice patterns worth talking to a professional about."
+        ),
+        "mh_disclaimer_title": "⚠️ Important disclaimer — please read",
+        "mh_disclaimer_body": (
+            "This check-in is for **educational and self-reflection purposes only**. It is "
+            "inspired by standard screening questionnaires used in clinical settings, but "
+            "taking it here does not diagnose any condition. Only a qualified mental health "
+            "professional can provide a diagnosis. If you're in crisis or thinking about "
+            "harming yourself, please contact the resources below right away."
+        ),
+        "mh_depression_header": "Over the last 2 weeks, how often have you been bothered by any of the following?",
+        "mh_anxiety_header": "And how often have you been bothered by these?",
+        "mh_one_more_question": (
+            "**One more question.** This one's just about keeping you safe — it's always okay "
+            "to answer honestly."
+        ),
+        "mh_submit_button": "See my results",
+        "mh_safety_alert_body": (
+            "Thank you for being honest — that takes courage. Please reach out to one of the "
+            "resources below right now, or contact someone you trust:"
+        ),
+        "mh_prompt": "Answer the questions above, then click **See my results**.",
+        "mh_results_header": "#### Your check-in results",
+        "mh_depression_result": "Depression indicator: **{label}** ({score}/27)",
+        "mh_anxiety_result": "Anxiety indicator: **{label}** ({score}/12)",
+        "mh_results_note": (
+            "These are screening indicators only, inspired by standard clinical "
+            "questionnaires — not a diagnosis. A mental health professional can give you a "
+            "real evaluation and talk through what these patterns might mean for you."
+        ),
+        "mh_learn_more_depression": "📖 Learn more about depression",
+        "mh_learn_more_anxiety": "📖 Learn more about anxiety",
+        "mh_resources_header": "#### Resources",
+        "mh_footer_note": (
+            "This check-in does not replace a conversation with a licensed mental health "
+            "professional. If anything here concerns you, please reach out for support."
+        ),
         "assistant_subheader": "Ask a question",
         "assistant_caption": (
             "A healthcare-savvy AI assistant grounded in this app's own condition data — plus "
@@ -392,6 +434,49 @@ UI_STRINGS["es"] = {
         "Los resultados se clasifican solo según la coincidencia de síntomas y pueden incluir "
         "afecciones que no sean relevantes para ti. Esto no es un diagnóstico — consulta a un "
         "profesional de la salud para confirmar cualquier afección."
+    ),
+    "tab_mental_health": "🧠 Chequeo de salud mental",
+    "mh_subheader": "Un momento para tu salud mental",
+    "mh_caption": (
+        "Un chequeo breve y privado inspirado en cuestionarios de detección clínica "
+        "ampliamente usados (PHQ-9 para el estado de ánimo, GAD-7 para la ansiedad). No es "
+        "un diagnóstico — solo una forma de notar patrones que vale la pena comentar con un "
+        "profesional."
+    ),
+    "mh_disclaimer_title": "⚠️ Aviso importante — por favor lee esto",
+    "mh_disclaimer_body": (
+        "Este chequeo es **solo con fines educativos y de autorreflexión**. Está inspirado "
+        "en cuestionarios de detección estándar usados en entornos clínicos, pero "
+        "responderlo aquí no diagnostica ninguna afección. Solo un profesional de salud "
+        "mental calificado puede dar un diagnóstico. Si estás en crisis o pensando en "
+        "hacerte daño, por favor contacta los recursos de abajo de inmediato."
+    ),
+    "mh_depression_header": "En las últimas 2 semanas, ¿con qué frecuencia te ha molestado alguno de los siguientes?",
+    "mh_anxiety_header": "¿Y con qué frecuencia te ha molestado esto?",
+    "mh_one_more_question": (
+        "**Una pregunta más.** Esta es solo para cuidar tu seguridad — siempre está bien "
+        "responder con honestidad."
+    ),
+    "mh_submit_button": "Ver mis resultados",
+    "mh_safety_alert_body": (
+        "Gracias por ser honesto/a — eso requiere valentía. Por favor contacta uno de los "
+        "recursos de abajo ahora mismo, o comunícate con alguien de confianza:"
+    ),
+    "mh_prompt": "Responde las preguntas de arriba y luego haz clic en **Ver mis resultados**.",
+    "mh_results_header": "#### Resultados de tu chequeo",
+    "mh_depression_result": "Indicador de depresión: **{label}** ({score}/27)",
+    "mh_anxiety_result": "Indicador de ansiedad: **{label}** ({score}/12)",
+    "mh_results_note": (
+        "Estos son solo indicadores de detección, inspirados en cuestionarios clínicos "
+        "estándar — no un diagnóstico. Un profesional de salud mental puede darte una "
+        "evaluación real y hablar sobre lo que estos patrones podrían significar para ti."
+    ),
+    "mh_learn_more_depression": "📖 Más información sobre la depresión",
+    "mh_learn_more_anxiety": "📖 Más información sobre la ansiedad",
+    "mh_resources_header": "#### Recursos",
+    "mh_footer_note": (
+        "Este chequeo no reemplaza una conversación con un profesional de salud mental con "
+        "licencia. Si algo aquí te preocupa, por favor busca apoyo."
     ),
     "assistant_subheader": "Haz una pregunta",
     "assistant_caption": (
@@ -573,6 +658,50 @@ UI_STRINGS["fr"] = {
         "inclure des affections qui ne vous concernent pas. Ce n'est pas un diagnostic — "
         "consultez un professionnel de santé pour confirmer toute affection."
     ),
+    "tab_mental_health": "🧠 Bilan de santé mentale",
+    "mh_subheader": "Un moment pour votre santé mentale",
+    "mh_caption": (
+        "Un bilan bref et privé inspiré de questionnaires de dépistage clinique largement "
+        "utilisés (PHQ-9 pour l'humeur, GAD-7 pour l'anxiété). Ce n'est pas un diagnostic — "
+        "juste une façon de remarquer des tendances qui méritent d'être abordées avec un "
+        "professionnel."
+    ),
+    "mh_disclaimer_title": "⚠️ Avertissement important — à lire",
+    "mh_disclaimer_body": (
+        "Ce bilan est **à des fins éducatives et d'introspection uniquement**. Il s'inspire "
+        "de questionnaires de dépistage standards utilisés en contexte clinique, mais y "
+        "répondre ici ne diagnostique aucune condition. Seul un professionnel de la santé "
+        "mentale qualifié peut poser un diagnostic. Si vous êtes en crise ou pensez à vous "
+        "faire du mal, contactez immédiatement les ressources ci-dessous."
+    ),
+    "mh_depression_header": "Au cours des 2 dernières semaines, à quelle fréquence avez-vous été gêné(e) par les éléments suivants ?",
+    "mh_anxiety_header": "Et à quelle fréquence avez-vous été gêné(e) par ceci ?",
+    "mh_one_more_question": (
+        "**Une dernière question.** Celle-ci concerne simplement votre sécurité — c'est "
+        "toujours bien de répondre honnêtement."
+    ),
+    "mh_submit_button": "Voir mes résultats",
+    "mh_safety_alert_body": (
+        "Merci d'avoir été honnête — cela demande du courage. Contactez immédiatement l'une "
+        "des ressources ci-dessous, ou une personne de confiance :"
+    ),
+    "mh_prompt": "Répondez aux questions ci-dessus, puis cliquez sur **Voir mes résultats**.",
+    "mh_results_header": "#### Résultats de votre bilan",
+    "mh_depression_result": "Indicateur de dépression : **{label}** ({score}/27)",
+    "mh_anxiety_result": "Indicateur d'anxiété : **{label}** ({score}/12)",
+    "mh_results_note": (
+        "Ce ne sont que des indicateurs de dépistage, inspirés de questionnaires cliniques "
+        "standards — pas un diagnostic. Un professionnel de la santé mentale peut vous "
+        "fournir une véritable évaluation et discuter de ce que ces tendances pourraient "
+        "signifier pour vous."
+    ),
+    "mh_learn_more_depression": "📖 En savoir plus sur la dépression",
+    "mh_learn_more_anxiety": "📖 En savoir plus sur l'anxiété",
+    "mh_resources_header": "#### Ressources",
+    "mh_footer_note": (
+        "Ce bilan ne remplace pas une conversation avec un professionnel de la santé mentale "
+        "agréé. Si quelque chose ici vous préoccupe, n'hésitez pas à demander du soutien."
+    ),
     "assistant_subheader": "Posez une question",
     "assistant_caption": (
         "Un assistant IA compétent en santé, ancré dans les propres données sur les affections "
@@ -749,6 +878,47 @@ UI_STRINGS["hi"] = {
         "सकती हैं जो आप पर लागू न हों। यह कोई निदान नहीं है — किसी भी स्थिति की पुष्टि के लिए कृपया "
         "किसी स्वास्थ्य पेशेवर से सलाह लें।"
     ),
+    "tab_mental_health": "🧠 मानसिक स्वास्थ्य जाँच",
+    "mh_subheader": "आपके मानसिक स्वास्थ्य के लिए एक पल",
+    "mh_caption": (
+        "व्यापक रूप से उपयोग की जाने वाली नैदानिक स्क्रीनिंग प्रश्नावली (मनोदशा के लिए PHQ-9, चिंता के "
+        "लिए GAD-7) से प्रेरित एक संक्षिप्त, निजी स्व-जाँच। यह निदान नहीं है — बस उन पैटर्न को नोटिस "
+        "करने का एक तरीका है जिनके बारे में किसी पेशेवर से बात करना उचित हो सकता है।"
+    ),
+    "mh_disclaimer_title": "⚠️ महत्वपूर्ण अस्वीकरण — कृपया पढ़ें",
+    "mh_disclaimer_body": (
+        "यह जाँच केवल **शैक्षिक और आत्म-चिंतन उद्देश्यों** के लिए है। यह क्लिनिकल सेटिंग्स में उपयोग "
+        "की जाने वाली मानक स्क्रीनिंग प्रश्नावली से प्रेरित है, लेकिन यहाँ इसका उत्तर देने से किसी "
+        "स्थिति का निदान नहीं होता। केवल एक योग्य मानसिक स्वास्थ्य पेशेवर ही निदान कर सकता है। यदि "
+        "आप संकट में हैं या स्वयं को नुकसान पहुँचाने के बारे में सोच रहे हैं, तो कृपया तुरंत नीचे दिए "
+        "गए संसाधनों से संपर्क करें।"
+    ),
+    "mh_depression_header": "पिछले 2 हफ्तों में, आप निम्नलिखित में से किसी से कितनी बार परेशान हुए हैं?",
+    "mh_anxiety_header": "और आप इनसे कितनी बार परेशान हुए हैं?",
+    "mh_one_more_question": (
+        "**एक और सवाल।** यह सिर्फ़ आपकी सुरक्षा के बारे में है — ईमानदारी से जवाब देना हमेशा ठीक है।"
+    ),
+    "mh_submit_button": "मेरे परिणाम देखें",
+    "mh_safety_alert_body": (
+        "ईमानदार होने के लिए धन्यवाद — इसके लिए हिम्मत चाहिए। कृपया अभी नीचे दिए गए संसाधनों में से "
+        "किसी एक से संपर्क करें, या किसी भरोसेमंद व्यक्ति से बात करें:"
+    ),
+    "mh_prompt": "ऊपर दिए गए सवालों के जवाब दें, फिर **मेरे परिणाम देखें** पर क्लिक करें।",
+    "mh_results_header": "#### आपकी जाँच के परिणाम",
+    "mh_depression_result": "अवसाद संकेतक: **{label}** ({score}/27)",
+    "mh_anxiety_result": "चिंता संकेतक: **{label}** ({score}/12)",
+    "mh_results_note": (
+        "ये केवल स्क्रीनिंग संकेतक हैं, मानक क्लिनिकल प्रश्नावली से प्रेरित — निदान नहीं। एक मानसिक "
+        "स्वास्थ्य पेशेवर आपको एक वास्तविक मूल्यांकन दे सकता है और चर्चा कर सकता है कि ये पैटर्न आपके "
+        "लिए क्या मायने रख सकते हैं।"
+    ),
+    "mh_learn_more_depression": "📖 अवसाद के बारे में और जानें",
+    "mh_learn_more_anxiety": "📖 चिंता के बारे में और जानें",
+    "mh_resources_header": "#### संसाधन",
+    "mh_footer_note": (
+        "यह जाँच किसी लाइसेंस प्राप्त मानसिक स्वास्थ्य पेशेवर के साथ बातचीत का विकल्प नहीं है। यदि "
+        "यहाँ कुछ भी आपको चिंतित करता है, तो कृपया सहायता लें।"
+    ),
     "assistant_subheader": "एक सवाल पूछें",
     "assistant_caption": (
         "इस ऐप के अपने स्थिति डेटा पर आधारित एक स्वास्थ्य-कुशल AI सहायक — साथ ही नॉलेज बेस में लोड "
@@ -871,6 +1041,46 @@ KIDS_RESOURCE_DETAILS_I18N = {
         "स्वास्थ्य और नशे से जुड़े उपचार के लिए रेफ़रल।",
         "11-17 वर्ष के लिए भावनाओं, ध्यान, या व्यवहार की जाँच हेतु एक मुफ़्त, गुमनाम स्क्रीनिंग उपकरण।",
         "बच्चों, किशोरों, और परिवारों के लिए स्पष्ट, शोध-आधारित जानकारी।",
+    ],
+}
+
+# Translated "detail" text for mental_health_data.MENTAL_HEALTH_RESOURCES, in
+# the same order. Labels and URLs stay in English/unchanged.
+MENTAL_HEALTH_RESOURCE_DETAILS_I18N = {
+    "en": [
+        "Call or text 988 — free, confidential, 24/7.",
+        "Text HOME to 741741 — free, 24/7 support by text.",
+        "Call 1-800-950-6264 or text \"HelpLine\" to 62640. Mon-Fri, 10am-10pm ET. Free peer "
+        "support and referrals — not a crisis line (use 988 for a crisis).",
+        "Call 1-800-662-HELP (4357), 24/7/365, free and confidential, English & Spanish. "
+        "Treatment referrals for mental health and substance use.",
+    ],
+    "es": [
+        "Llama o envía un mensaje al 988 — gratis, confidencial, 24/7.",
+        "Envía HOME al 741741 — apoyo gratuito por mensaje de texto, 24/7.",
+        "Llama al 1-800-950-6264 o envía \"HelpLine\" al 62640. Lun-vie, 10am-10pm ET. Apoyo "
+        "gratuito entre pares y referencias — no es una línea de crisis (usa el 988 para una "
+        "crisis).",
+        "Llama al 1-800-662-HELP (4357), 24/7/365, gratis y confidencial, en inglés y español. "
+        "Referencias de tratamiento para salud mental y uso de sustancias.",
+    ],
+    "fr": [
+        "Appelez ou envoyez un SMS au 988 — gratuit, confidentiel, 24/7.",
+        "Envoyez HOME au 741741 — soutien gratuit par SMS, 24/7.",
+        "Appelez le 1-800-950-6264 ou envoyez « HelpLine » au 62640. Lun-ven, 10h-22h (heure de "
+        "l'Est). Soutien gratuit par des pairs et orientation — ce n'est pas une ligne de "
+        "crise (utilisez le 988 en cas de crise).",
+        "Appelez le 1-800-662-HELP (4357), 24/7/365, gratuit et confidentiel, en anglais et "
+        "espagnol. Orientation vers des traitements pour la santé mentale et les dépendances.",
+    ],
+    "hi": [
+        "988 पर कॉल या टेक्स्ट करें — मुफ़्त, गोपनीय, 24/7।",
+        "741741 पर HOME लिखकर भेजें — मुफ़्त, 24/7 टेक्स्ट सहायता।",
+        "1-800-950-6264 पर कॉल करें या 62640 पर \"HelpLine\" लिखकर भेजें। सोम-शुक्र, सुबह 10 से रात "
+        "10 बजे (ET)। मुफ़्त पीयर सहायता और रेफ़रल — यह क्राइसिस लाइन नहीं है (संकट के लिए 988 का "
+        "उपयोग करें)।",
+        "1-800-662-HELP (4357) पर कॉल करें, 24/7/365, मुफ़्त और गोपनीय, अंग्रेज़ी और स्पैनिश में। "
+        "मानसिक स्वास्थ्य और नशे से जुड़े उपचार के लिए रेफ़रल।",
     ],
 }
 
