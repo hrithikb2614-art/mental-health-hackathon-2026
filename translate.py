@@ -22,10 +22,10 @@ import rag
 TRANSLATIONS_DIR = Path(__file__).parent / "data" / "translations"
 TRANSLATE_MODEL = "claude-sonnet-5"
 TRANSLATE_TIMEOUT_SECONDS = 300
-# The disease+symptom blob is the bulk of the content (57 conditions, ~220
+# The disease+symptom blob is the bulk of the content (88 conditions, ~250
 # symptom labels) — give it a large budget. Truncation was observed at
 # lower values (stop_reason="max_tokens"), so this needs real headroom.
-DISEASES_MAX_TOKENS = 32000
+DISEASES_MAX_TOKENS = 48000
 OTHER_MAX_TOKENS = 12000
 
 

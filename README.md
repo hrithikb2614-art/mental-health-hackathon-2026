@@ -20,13 +20,15 @@ French, Hindi — see [Languages](#languages) below):
    survey for young people. Surfaces gentle themes instead of condition
    labels and always shows curated resources (NAMI, MHA National, NIMH,
    SAMHSA, 988, Crisis Text Line).
-2. **Symptom Checker** — covers 57 conditions across physical illness (45
+2. **Symptom Checker** — covers 88 conditions across physical illness (76
    conditions: cold, flu, COVID-19, migraine, chickenpox, croup, measles,
    meningitis, Lyme disease, strep throat, ringworm, pinkeye, and more,
-   informed by AAP/state-health-department childcare illness references)
-   and mental health (12 conditions: depression, anxiety, PTSD, OCD,
-   bipolar disorder, ADHD, etc.), with a multi-select symptom picker (220+
-   symptom labels), ranked matches with a match-score bar, matched/missing
+   informed by AAP/state-health-department childcare illness references,
+   plus well-known global viral illnesses like Ebola, Zika, Dengue,
+   Chikungunya, Yellow Fever, Rabies, HIV, and viral hepatitis) and mental
+   health (12 conditions: depression, anxiety, PTSD, OCD, bipolar disorder,
+   ADHD, etc.), with a multi-select symptom picker (250+ symptom labels),
+   ranked matches with a match-score bar, matched/missing
    symptoms, suggested next steps, a Mayo Clinic summary per condition, and
    an automatic safety banner with crisis hotline info if emergency
    symptoms are selected (chest pain, stiff neck, severe bleeding, etc.).
@@ -101,7 +103,7 @@ Hindi:
 - All UI chrome, navigation, and safety-critical text (crisis hotlines,
   emergency messages, urgency labels) is hand-translated in `i18n.py` and
   always available with no setup.
-- The larger dynamic content — the 57 condition descriptions, the symptom
+- The larger dynamic content — the 88 condition descriptions, the symptom
   vocabulary, the Kids Check-In questions/themes, and the Mental Health
   Check-In questions — is translated on first use via the configured AI
   Assistant (`translate.py`, two API calls: diseases+symptoms is the bulk,
