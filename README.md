@@ -27,7 +27,7 @@ The app has four tabs:
    Clinic summary per condition, and an automatic safety banner with crisis
    hotline info if emergency symptoms are selected.
 3. **AI Assistant** — a RAG-powered chat that answers questions grounded in
-   documents loaded into a Supabase knowledge base (see setup below). Falls
+   documents loaded into a local knowledge base (see setup below). Falls
    back to a clear setup message if not configured.
 4. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
    `.pdf` files to the shared knowledge base the AI Assistant searches.
@@ -44,25 +44,24 @@ AI Assistant and Upload Documents tabs need the setup below.
 
 ## AI Assistant setup (optional)
 
-The AI Assistant uses [Supabase](https://supabase.com) (Postgres + pgvector)
-to store document embeddings and OpenAI for embeddings and chat answers.
+The AI Assistant stores document embeddings in a local file
+(`data/knowledge_base.json`, gitignored) — no external database or account
+needed. It uses OpenAI for embeddings and chat answers.
 
-1. Create a free Supabase project, then run `sql/schema.sql` in its SQL
-   editor (Project → SQL Editor → New query) to create the `documents`
-   table and the `match_documents` search function.
-2. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`
+1. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`
    (already gitignored) and fill in:
-   - `SUPABASE_URL` / `SUPABASE_KEY` — from your Supabase project's API
-     settings
    - `OPENAI_API_KEY` — an OpenAI API key
    - `ADMIN_PASSWORD` — a password of your choosing; required to use the
      Upload Documents tab, since uploaded documents are shared with every
      visitor's AI Assistant
-3. Restart the app. Use the password-gated Upload Documents tab to add
-   files to the knowledge base, then ask questions in the AI Assistant tab.
+2. Restart the app. Use the password-gated Upload Documents tab to add
+   `.txt`, `.md`, or `.pdf` files to the knowledge base, then ask questions
+   in the AI Assistant tab.
 
-Without these secrets configured, the AI Assistant and Upload Documents
-tabs show a setup message and the rest of the app works normally.
+Without `OPENAI_API_KEY` configured, the AI Assistant and Upload Documents
+tabs show a setup message and the rest of the app works normally. Note that
+the knowledge base lives on local disk, so it persists only for the
+lifetime of the running app process — redeploying resets it.
 
 ## How it works
 

@@ -396,10 +396,8 @@ with tab_assistant:
 
     if not rag.is_configured():
         st.warning(
-            "The AI Assistant isn't set up yet. Add `SUPABASE_URL`, `SUPABASE_KEY`, "
-            f"and `OPENAI_API_KEY` to `.streamlit/secrets.toml` (missing: "
-            f"{', '.join(rag.missing_secrets())}) — see `.streamlit/secrets.toml.example` "
-            "and `sql/schema.sql` for setup."
+            "The AI Assistant isn't set up yet. Add `OPENAI_API_KEY` to "
+            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
         )
     else:
         if "assistant_history" not in st.session_state:
@@ -452,12 +450,16 @@ with tab_upload:
 
     if not rag.is_configured():
         st.warning(
-            "Document upload isn't set up yet. Add `SUPABASE_URL`, `SUPABASE_KEY`, "
-            f"and `OPENAI_API_KEY` to `.streamlit/secrets.toml` (missing: "
-            f"{', '.join(rag.missing_secrets())}) — see `.streamlit/secrets.toml.example` "
-            "and `sql/schema.sql` for setup."
+            "Document upload isn't set up yet. Add `OPENAI_API_KEY` to "
+            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
         )
     else:
+        stats = rag.store_stats()
+        st.caption(
+            f"Knowledge base currently has **{stats['chunks']}** chunks from "
+            f"**{stats['documents']}** document(s)."
+        )
+
         admin_password = rag.get_secret("ADMIN_PASSWORD")
         if not admin_password:
             st.info("Set `ADMIN_PASSWORD` in secrets to enable document uploads.")

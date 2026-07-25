@@ -1,19 +1,27 @@
-"""Retrieval-augmented generation over documents stored in Supabase.
+"""Retrieval-augmented generation over documents stored in a local JSON file.
 
-Requires three secrets (see .streamlit/secrets.toml.example):
-- SUPABASE_URL, SUPABASE_KEY: a Supabase project with the schema in sql/schema.sql applied
+Requires one secret (see .streamlit/secrets.toml.example):
 - OPENAI_API_KEY: used for both embeddings (text-embedding-3-small) and chat answers
 
-Document uploads are admin-curated: the parsed, chunked, and embedded content is
-written to Supabase and shared by every visitor who asks the AI Assistant a question.
+No external account or database setup needed. Document uploads are
+admin-curated: parsed, chunked, and embedded content is saved to a local
+JSON file (data/knowledge_base.json) and shared by every visitor who asks
+the AI Assistant a question, for as long as the app process keeps running.
+The file is gitignored, and resets if the app is redeployed.
 """
 
+import json
+from pathlib import Path
+
+import numpy as np
 import streamlit as st
 
 EMBEDDING_MODEL = "text-embedding-3-small"
 CHAT_MODEL = "gpt-4o-mini"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
+
+KNOWLEDGE_BASE_PATH = Path(__file__).parent / "data" / "knowledge_base.json"
 
 SYSTEM_PROMPT = (
     "You are a supportive assistant answering questions using only the reference "
@@ -49,17 +57,11 @@ def _has_secret(key: str) -> bool:
 
 
 def is_configured() -> bool:
-    return all(
-        _has_secret(key) for key in ("SUPABASE_URL", "SUPABASE_KEY", "OPENAI_API_KEY")
-    )
+    return _has_secret("OPENAI_API_KEY")
 
 
 def missing_secrets() -> list:
-    return [
-        key
-        for key in ("SUPABASE_URL", "SUPABASE_KEY", "OPENAI_API_KEY")
-        if not _has_secret(key)
-    ]
+    return [] if _has_secret("OPENAI_API_KEY") else ["OPENAI_API_KEY"]
 
 
 def get_secret(key: str, default=None):
@@ -67,13 +69,6 @@ def get_secret(key: str, default=None):
         return st.secrets.get(key, default)
     except Exception:
         return default
-
-
-@st.cache_resource
-def get_supabase_client():
-    from supabase import create_client
-
-    return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 
 
 @st.cache_resource
@@ -116,13 +111,35 @@ def embed_texts(texts: list) -> list:
     return [item.embedding for item in response.data]
 
 
+def _load_store() -> list:
+    if not KNOWLEDGE_BASE_PATH.exists():
+        return []
+    with open(KNOWLEDGE_BASE_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _save_store(store: list) -> None:
+    KNOWLEDGE_BASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(KNOWLEDGE_BASE_PATH, "w", encoding="utf-8") as f:
+        json.dump(store, f)
+
+
+def store_stats() -> dict:
+    store = _load_store()
+    return {
+        "chunks": len(store),
+        "documents": len({row["source"] for row in store}),
+    }
+
+
 def upsert_document(filename: str, text: str) -> int:
-    """Chunk, embed, and store a document's text in Supabase. Returns chunk count."""
+    """Chunk, embed, and append a document's text to the local store. Returns chunk count."""
     chunks = chunk_text(text)
     if not chunks:
         return 0
     embeddings = embed_texts(chunks)
-    rows = [
+    store = _load_store()
+    store.extend(
         {
             "source": filename,
             "chunk_index": i,
@@ -130,20 +147,29 @@ def upsert_document(filename: str, text: str) -> int:
             "embedding": embedding,
         }
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings))
-    ]
-    supabase = get_supabase_client()
-    supabase.table("documents").insert(rows).execute()
-    return len(rows)
+    )
+    _save_store(store)
+    return len(chunks)
 
 
 def search_similar(query: str, match_count: int = 5) -> list:
-    query_embedding = embed_texts([query])[0]
-    supabase = get_supabase_client()
-    result = supabase.rpc(
-        "match_documents",
-        {"query_embedding": query_embedding, "match_count": match_count},
-    ).execute()
-    return result.data or []
+    store = _load_store()
+    if not store:
+        return []
+
+    query_embedding = np.array(embed_texts([query])[0])
+    matrix = np.array([row["embedding"] for row in store])
+
+    matrix_norms = np.linalg.norm(matrix, axis=1)
+    matrix_norms[matrix_norms == 0] = 1e-10
+    query_norm = np.linalg.norm(query_embedding) or 1e-10
+    similarities = (matrix @ query_embedding) / (matrix_norms * query_norm)
+
+    top_indices = np.argsort(-similarities)[:match_count]
+    return [
+        {**store[i], "similarity": float(similarities[i])}
+        for i in top_indices
+    ]
 
 
 def generate_answer(question: str, matches: list) -> str:
