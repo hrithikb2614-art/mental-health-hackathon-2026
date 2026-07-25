@@ -12,6 +12,8 @@ DISEASES = {
         "description": "A mild viral infection of the upper respiratory tract.",
         "urgency": "self_care",
         "advice": "Rest, fluids, and over-the-counter remedies usually help. See a doctor if symptoms last over 10 days or worsen.",
+        "mayo_summary": "The common cold is a mild, highly contagious respiratory infection, most often caused by rhinoviruses spread through coughing, sneezing, or contaminated surfaces. It typically brings a runny or stuffy nose, sore throat, cough, and sometimes mild body aches or fever, usually clearing up within a week to ten days.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/common-cold/symptoms-causes/syc-20351605",
     },
     "Influenza (Flu)": {
         "category": "Physical",
@@ -19,6 +21,8 @@ DISEASES = {
         "description": "A contagious viral infection that is often more severe than a cold.",
         "urgency": "see_doctor",
         "advice": "Rest and hydrate; antivirals can help if started early. Seek care if breathing becomes difficult.",
+        "mayo_summary": "Influenza is a contagious respiratory illness caused by influenza viruses that spread through airborne droplets from coughing or sneezing. Symptoms tend to appear suddenly and are more intense than a cold, including fever, chills, muscle aches, headache, fatigue, cough, and sore throat, generally resolving within one to two weeks.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/flu/symptoms-causes/syc-20351719",
     },
     "COVID-19": {
         "category": "Physical",
@@ -26,6 +30,8 @@ DISEASES = {
         "description": "A viral respiratory illness caused by the SARS-CoV-2 virus.",
         "urgency": "see_doctor",
         "advice": "Test if possible, isolate, and monitor oxygen levels. Seek emergency care for severe breathing trouble.",
+        "mayo_summary": "COVID-19 is a respiratory illness caused by the SARS-CoV-2 virus, which spreads mainly through close contact with airborne droplets. Presentation ranges from no symptoms at all to fever, cough, sore throat, congestion, body aches, fatigue, and gastrointestinal upset, with older adults and those with underlying conditions facing higher risk of severe illness.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/coronavirus/symptoms-causes/syc-20479963",
     },
     "Migraine": {
         "category": "Physical",
@@ -33,6 +39,8 @@ DISEASES = {
         "description": "A neurological condition causing intense, recurring headaches.",
         "urgency": "self_care",
         "advice": "Rest in a dark quiet room; consider a doctor if attacks are frequent or severe.",
+        "mayo_summary": "A migraine is a neurological condition producing intense, often one-sided throbbing head pain, frequently accompanied by nausea, vomiting, and heightened sensitivity to light and sound. Some people experience a warning aura beforehand, such as visual disturbances or tingling. Attacks can be triggered by stress, hormones, certain foods, or weather changes.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/migraine-headache/symptoms-causes/syc-20360201",
     },
     "Tension Headache": {
         "category": "Physical",
@@ -40,6 +48,8 @@ DISEASES = {
         "description": "The most common type of headache, often linked to stress or muscle tension.",
         "urgency": "self_care",
         "advice": "Rest, hydration, and stress management usually resolve it. See a doctor if frequent.",
+        "mayo_summary": "A tension headache is the most common type of headache, producing a dull, band-like pressure or tightness across the forehead, scalp, or neck rather than throbbing pain. It's often brought on by stress, poor posture, muscle tension, or fatigue, and is generally milder than a migraine, though it can still disrupt daily life.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/tension-headache/symptoms-causes/syc-20353977",
     },
     "Gastroenteritis": {
         "category": "Physical",
@@ -47,6 +57,8 @@ DISEASES = {
         "description": "Inflammation of the stomach and intestines, often from infection.",
         "urgency": "see_doctor",
         "advice": "Stay hydrated with fluids/electrolytes. Seek care if unable to keep fluids down or signs of dehydration appear.",
+        "mayo_summary": "Gastroenteritis, often called stomach flu, is an intestinal infection that inflames the stomach and gut, typically caused by viruses spread through contact with an infected person or contaminated food or water. It leads to watery diarrhea, cramping, nausea, and vomiting, sometimes with a low-grade fever, usually resolving within a few days.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/viral-gastroenteritis/symptoms-causes/syc-20378847",
     },
     "Food Poisoning": {
         "category": "Physical",
@@ -54,6 +66,8 @@ DISEASES = {
         "description": "Illness caused by consuming contaminated food.",
         "urgency": "see_doctor",
         "advice": "Hydrate and rest. Seek care if symptoms are severe or persist beyond 2 days.",
+        "mayo_summary": "Food poisoning results from eating food or drink contaminated with harmful bacteria, viruses, parasites, or toxins, often due to improper handling or storage. Symptoms usually appear within hours and include nausea, vomiting, diarrhea, and stomach cramps, sometimes with fever, and most cases resolve on their own as the body clears the contaminant.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/food-poisoning/symptoms-causes/syc-20356230",
     },
     "Urinary Tract Infection": {
         "category": "Physical",
@@ -61,6 +75,8 @@ DISEASES = {
         "description": "A bacterial infection affecting the urinary system.",
         "urgency": "see_doctor",
         "advice": "See a doctor for antibiotics; drink plenty of water in the meantime.",
+        "mayo_summary": "A urinary tract infection occurs when bacteria enter and infect part of the urinary system, most often the bladder and urethra. It typically causes a frequent, urgent need to urinate, a burning sensation while urinating, cloudy or strong-smelling urine, and pelvic discomfort; infections that reach the kidneys can cause fever and back pain.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/urinary-tract-infection/symptoms-causes/syc-20353447",
     },
     "Allergic Rhinitis": {
         "category": "Physical",
@@ -68,6 +84,8 @@ DISEASES = {
         "description": "An allergic reaction causing cold-like symptoms, often seasonal.",
         "urgency": "self_care",
         "advice": "Antihistamines and avoiding triggers often help. See a doctor for persistent symptoms.",
+        "mayo_summary": "Allergic rhinitis, commonly known as hay fever, is the immune system's overreaction to harmless airborne substances such as pollen, dust mites, or pet dander. It produces sneezing, a runny or stuffy nose, and itchy, watery eyes, and unlike a cold it isn't caused by a virus and can recur whenever allergen exposure occurs.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/hay-fever/symptoms-causes/syc-20373039",
     },
     "Asthma": {
         "category": "Physical",
@@ -75,6 +93,8 @@ DISEASES = {
         "description": "A chronic condition causing narrowing and inflammation of the airways.",
         "urgency": "see_doctor",
         "advice": "Use prescribed inhalers as directed. Seek emergency care for severe breathing difficulty.",
+        "mayo_summary": "Asthma is a chronic condition in which the airways narrow, swell, and produce extra mucus, making breathing difficult. It causes shortness of breath, chest tightness, coughing, and wheezing, and flare-ups can be triggered by allergens, exercise, cold air, respiratory infections, or stress, ranging from a mild nuisance to a life-threatening attack.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/asthma/symptoms-causes/syc-20369653",
     },
     "Hypertension": {
         "category": "Physical",
@@ -82,6 +102,8 @@ DISEASES = {
         "description": "Persistently high blood pressure, often with few noticeable symptoms.",
         "urgency": "see_doctor",
         "advice": "Get blood pressure checked regularly; lifestyle changes and medication can help manage it.",
+        "mayo_summary": "Hypertension, or high blood pressure, occurs when the force of blood against artery walls stays consistently elevated, making the heart work harder than it should. It usually causes no noticeable symptoms even at dangerous levels, which is why it's often called a silent condition, but left untreated it raises the risk of heart attack and stroke.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/symptoms-causes/syc-20373410",
     },
     "Type 2 Diabetes": {
         "category": "Physical",
@@ -89,6 +111,8 @@ DISEASES = {
         "description": "A chronic condition affecting how the body processes blood sugar.",
         "urgency": "see_doctor",
         "advice": "See a doctor for blood sugar testing; diet, exercise, and medication can help manage it.",
+        "mayo_summary": "Type 2 diabetes develops when the body doesn't produce enough insulin or its cells stop responding to it properly, causing blood sugar to run high. It often progresses slowly, with symptoms such as increased thirst and hunger, frequent urination, fatigue, blurred vision, and slow-healing sores, and is closely linked to excess weight and inactivity.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/type-2-diabetes/symptoms-causes/syc-20351193",
     },
     "GERD (Acid Reflux)": {
         "category": "Physical",
@@ -96,6 +120,8 @@ DISEASES = {
         "description": "A digestive condition where stomach acid frequently flows back into the esophagus.",
         "urgency": "self_care",
         "advice": "Avoid trigger foods and eating late. See a doctor if symptoms persist or worsen.",
+        "mayo_summary": "GERD is a digestive condition in which stomach acid repeatedly flows back into the esophagus because the muscle that should keep it down doesn't close properly. This causes frequent heartburn, regurgitation, and difficulty swallowing, and is diagnosed when acid reflux happens more than about twice a week rather than just occasionally.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/gerd/symptoms-causes/syc-20361940",
     },
     "Iron-Deficiency Anemia": {
         "category": "Physical",
@@ -103,6 +129,8 @@ DISEASES = {
         "description": "A condition caused by insufficient healthy red blood cells due to low iron.",
         "urgency": "see_doctor",
         "advice": "See a doctor for blood tests; iron supplementation may be recommended.",
+        "mayo_summary": "Iron-deficiency anemia develops when the body lacks enough iron to make sufficient hemoglobin, the protein red blood cells use to carry oxygen. Common causes include blood loss, inadequate dietary iron, pregnancy, or poor absorption from digestive conditions, and it typically produces fatigue, pale skin, shortness of breath, and dizziness.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/iron-deficiency-anemia/symptoms-causes/syc-20355034",
     },
     "Hypothyroidism": {
         "category": "Physical",
@@ -110,6 +138,8 @@ DISEASES = {
         "description": "A condition where the thyroid gland doesn't produce enough hormones.",
         "urgency": "see_doctor",
         "advice": "See a doctor for thyroid function tests; treatment is usually straightforward with medication.",
+        "mayo_summary": "Hypothyroidism occurs when the thyroid gland fails to produce enough thyroid hormone, most often due to the autoimmune condition Hashimoto's thyroiditis. Because hormone levels drop gradually, early symptoms can be subtle, but the condition typically leads to fatigue, weight gain, cold sensitivity, dry skin, constipation, and muscle weakness over time.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/hypothyroidism/symptoms-causes/syc-20350284",
     },
     "Dehydration": {
         "category": "Physical",
@@ -117,6 +147,8 @@ DISEASES = {
         "description": "A condition caused by losing more fluids than you take in.",
         "urgency": "self_care",
         "advice": "Increase fluid intake. Seek care if severe or unable to keep fluids down.",
+        "mayo_summary": "Dehydration happens when the body loses more fluid than it takes in, disrupting normal function. It's commonly caused by insufficient water intake, excessive sweating, fever, or fluid loss from vomiting and diarrhea, and can produce thirst, dark urine, fatigue, and dizziness, with infants and older adults at greatest risk.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/dehydration/symptoms-causes/syc-20354086",
     },
     "Sinusitis": {
         "category": "Physical",
@@ -124,6 +156,8 @@ DISEASES = {
         "description": "Inflammation of the sinuses, often following a cold.",
         "urgency": "self_care",
         "advice": "Saline rinses and decongestants can help. See a doctor if symptoms last over 10 days.",
+        "mayo_summary": "Sinusitis is inflammation and swelling of the nasal sinus cavities that blocks normal drainage and lets mucus build up. It's most often triggered by a common cold virus, though a lingering viral infection can sometimes turn bacterial, causing facial pressure, headache, thick nasal discharge, and reduced sense of smell or taste.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/acute-sinusitis/symptoms-causes/syc-20351671",
     },
     "Strep Throat": {
         "category": "Physical",
@@ -131,6 +165,8 @@ DISEASES = {
         "description": "A bacterial throat infection that needs antibiotic treatment.",
         "urgency": "see_doctor",
         "advice": "See a doctor for testing and antibiotics if confirmed.",
+        "mayo_summary": "Strep throat is a bacterial infection of the throat and tonsils caused by group A Streptococcus, spread through respiratory droplets or shared food and drink. It causes a sudden, severe sore throat, pain swallowing, fever, and swollen glands, typically without the cough or runny nose seen in viral illnesses, and needs antibiotic treatment.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/strep-throat/symptoms-causes/syc-20350338",
     },
     "Conjunctivitis (Pink Eye)": {
         "category": "Physical",
@@ -138,6 +174,8 @@ DISEASES = {
         "description": "Inflammation or infection of the membrane covering the eye.",
         "urgency": "self_care",
         "advice": "Keep eyes clean and avoid touching them. See a doctor if it worsens or vision is affected.",
+        "mayo_summary": "Conjunctivitis, or pink eye, is inflammation of the thin membrane covering the white of the eye and inner eyelid, most often caused by a viral or bacterial infection or an allergic reaction. It leads to redness, itchiness, a gritty feeling, and watery or sticky discharge, and is frequently contagious when caused by infection.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/pink-eye/symptoms-causes/syc-20376355",
     },
     "Muscle/Back Strain": {
         "category": "Physical",
@@ -145,6 +183,8 @@ DISEASES = {
         "description": "An injury to muscles or tendons, often from overuse or improper lifting.",
         "urgency": "self_care",
         "advice": "Rest, ice/heat, and gentle stretching help. See a doctor if pain is severe or persistent.",
+        "mayo_summary": "A muscle or back strain occurs when muscle fibers or the tendons attaching them are overstretched or torn, often from improper lifting, sudden twisting, or overexertion. It typically causes sudden, localized pain that worsens with movement, along with muscle spasms, stiffness, and sometimes swelling or bruising around the affected area.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/muscle-strains/symptoms-causes/syc-20450507",
     },
 
     # ---------------- Mental health ----------------
@@ -154,6 +194,8 @@ DISEASES = {
         "description": "A mood disorder causing persistent feelings of sadness and loss of interest.",
         "urgency": "see_doctor",
         "advice": "Speak with a mental health professional. Therapy and/or medication are effective treatments.",
+        "mayo_summary": "Major depressive disorder is a mood condition marked by a persistent sense of sadness, emptiness, or hopelessness along with a loss of interest in activities once enjoyed. It affects thinking, sleep, appetite, and energy, and its causes are believed to involve a combination of brain chemistry, genetics, and stressful life circumstances.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/depression/symptoms-causes/syc-20356007",
     },
     "Generalized Anxiety Disorder": {
         "category": "Mental",
@@ -161,6 +203,8 @@ DISEASES = {
         "description": "A condition marked by chronic, excessive worry about everyday matters.",
         "urgency": "see_doctor",
         "advice": "Therapy (like CBT), relaxation techniques, and sometimes medication can help significantly.",
+        "mayo_summary": "Generalized anxiety disorder involves persistent, excessive worry about everyday matters that is hard to control and interferes with daily life. It's often accompanied by restlessness, fatigue, muscle tension, trouble concentrating, and sleep difficulties, and appears to arise from a mix of genetics, brain chemistry, and accumulated life stress.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/generalized-anxiety-disorder/symptoms-causes/syc-20360803",
     },
     "Panic Disorder": {
         "category": "Mental",
@@ -168,6 +212,8 @@ DISEASES = {
         "description": "Recurrent, unexpected panic attacks and fear of future attacks.",
         "urgency": "see_doctor",
         "advice": "A mental health professional can help with therapy and coping strategies; treatment is very effective.",
+        "mayo_summary": "Panic disorder involves recurring, unexpected panic attacks — sudden surges of intense fear paired with physical symptoms like a racing heart, sweating, trembling, and shortness of breath. People with the condition often develop ongoing worry about future attacks and may avoid situations they fear could trigger one; genetics and stress are thought to contribute.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/panic-attacks/symptoms-causes/syc-20376021",
     },
     "Social Anxiety Disorder": {
         "category": "Mental",
@@ -175,6 +221,8 @@ DISEASES = {
         "description": "Intense fear or anxiety about being watched or judged by others.",
         "urgency": "see_doctor",
         "advice": "Cognitive behavioral therapy is highly effective; consider speaking with a therapist.",
+        "mayo_summary": "Social anxiety disorder is marked by an intense fear of being judged, embarrassed, or scrutinized in social situations, which leads to significant self-consciousness and avoidance. It can cause physical symptoms like blushing, sweating, or a shaky voice, usually emerges in the teenage years, and can meaningfully disrupt relationships, work, or school.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/social-anxiety-disorder/symptoms-causes/syc-20353561",
     },
     "Post-Traumatic Stress Disorder": {
         "category": "Mental",
@@ -182,6 +230,8 @@ DISEASES = {
         "description": "A condition triggered by experiencing or witnessing a traumatic event.",
         "urgency": "see_doctor",
         "advice": "Trauma-focused therapy is effective. Reach out to a mental health professional.",
+        "mayo_summary": "PTSD is a mental health condition that can develop after experiencing or witnessing a traumatic event. It involves intrusive memories or flashbacks, avoidance of trauma-related reminders, negative shifts in mood or thinking, and heightened reactivity such as being easily startled, though not everyone exposed to trauma goes on to develop it.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/post-traumatic-stress-disorder/symptoms-causes/syc-20355967",
     },
     "Obsessive-Compulsive Disorder": {
         "category": "Mental",
@@ -189,6 +239,8 @@ DISEASES = {
         "description": "A condition featuring unwanted repetitive thoughts and/or behaviors.",
         "urgency": "see_doctor",
         "advice": "Specialized therapy (ERP) and/or medication are effective; consult a mental health professional.",
+        "mayo_summary": "OCD is characterized by unwanted, intrusive thoughts or fears, called obsessions, that drive repetitive behaviors or mental rituals, called compulsions, performed to ease the resulting anxiety. These patterns can consume significant time and interfere with daily functioning; while the exact cause is unknown, genetics, brain differences, and environment all appear to play a role.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/obsessive-compulsive-disorder/symptoms-causes/syc-20354432",
     },
     "Bipolar Disorder": {
         "category": "Mental",
@@ -196,6 +248,8 @@ DISEASES = {
         "description": "A condition causing extreme mood shifts including emotional highs and lows.",
         "urgency": "see_doctor",
         "advice": "See a psychiatrist for evaluation; mood stabilizers and therapy are commonly used.",
+        "mayo_summary": "Bipolar disorder is a mood condition featuring extreme swings between emotional highs, known as mania or hypomania, and depressive lows. Manic phases can bring high energy, reduced need for sleep, and impulsive decisions, while depressive phases bring sadness, fatigue, and low motivation; genetics and brain chemistry are thought to contribute to its onset.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/bipolar-disorder/symptoms-causes/syc-20355955",
     },
     "Insomnia Disorder": {
         "category": "Mental",
@@ -203,6 +257,8 @@ DISEASES = {
         "description": "A sleep disorder marked by persistent trouble sleeping.",
         "urgency": "self_care",
         "advice": "Improve sleep hygiene; see a doctor if it persists beyond a few weeks.",
+        "mayo_summary": "Insomnia is a common sleep disorder involving persistent difficulty falling asleep, staying asleep, or waking too early without being able to return to sleep, leaving a person unrested. It can stem from stress, certain medications, underlying medical or mental health conditions, or disruptive habits, and often drains energy, mood, and concentration.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/insomnia/symptoms-causes/syc-20355167",
     },
     "ADHD (Attention-Deficit/Hyperactivity Disorder)": {
         "category": "Mental",
@@ -210,6 +266,8 @@ DISEASES = {
         "description": "A neurodevelopmental condition affecting attention, impulse control, and activity levels.",
         "urgency": "see_doctor",
         "advice": "An evaluation from a specialist can clarify diagnosis; behavioral strategies and/or medication can help.",
+        "mayo_summary": "ADHD is a neurodevelopmental condition involving a persistent pattern of inattention, hyperactivity, or impulsivity that interferes with functioning. In adults it often shows up as disorganization, forgetfulness, poor time management, and difficulty finishing tasks; symptoms must trace back to childhood, and both brain differences and genetics are thought to contribute.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/adult-adhd/symptoms-causes/syc-20350878",
     },
     "Burnout / Chronic Stress": {
         "category": "Mental",
@@ -217,6 +275,8 @@ DISEASES = {
         "description": "A state of physical and emotional exhaustion caused by prolonged stress.",
         "urgency": "self_care",
         "advice": "Rest, boundary-setting, and support help; consider a professional if it doesn't improve.",
+        "mayo_summary": "Burnout is a state of physical and emotional exhaustion that builds gradually from prolonged, poorly managed stress, especially related to work. It shows up as persistent fatigue, cynicism or detachment toward one's job, and reduced effectiveness, and is linked to chronic stress's toll on the brain's ability to regulate mood and motivation.",
+        "mayo_url": "https://www.mayoclinic.org/healthy-lifestyle/adult-health/in-depth/burnout/art-20046642",
     },
     "Eating Disorder (Disordered Eating)": {
         "category": "Mental",
@@ -224,6 +284,8 @@ DISEASES = {
         "description": "A condition involving unhealthy patterns of eating that affect physical and mental health.",
         "urgency": "see_doctor",
         "advice": "Reach out to a doctor or specialist; early support greatly improves outcomes.",
+        "mayo_summary": "Eating disorders are serious conditions involving an unhealthy relationship with food, weight, or body image, including patterns like severely restricting intake, bingeing, or purging. They often coexist with anxiety, depression, or other mental health struggles, and risk is shaped by a combination of psychological, social, and biological factors.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/eating-disorders/symptoms-causes/syc-20353603",
     },
     "Adjustment Disorder": {
         "category": "Mental",
@@ -231,6 +293,8 @@ DISEASES = {
         "description": "Emotional or behavioral symptoms in response to an identifiable stressor.",
         "urgency": "self_care",
         "advice": "Support from friends, family, or a counselor can help you adjust; seek help if symptoms persist.",
+        "mayo_summary": "Adjustment disorder is an intense emotional or behavioral reaction to a stressful life event or change that is stronger than what would typically be expected. Symptoms, which can include low mood, anxiety, or behavioral changes, generally begin within three months of the stressor and improve within six months as the person adapts.",
+        "mayo_url": "https://www.mayoclinic.org/diseases-conditions/adjustment-disorders/symptoms-causes/syc-20355224",
     },
 }
 

@@ -141,6 +141,11 @@ elif analyze or "last_results" in st.session_state:
                 if r["missing"]:
                     st.markdown(f"ℹ️ **Other typical symptoms not selected:** {', '.join(r['missing'])}")
                 st.markdown(f"**Suggested next step:** {info['advice']}")
+                if info.get("mayo_summary"):
+                    with st.expander("📖 AI summary from Mayo Clinic"):
+                        st.write(info["mayo_summary"])
+                        if info.get("mayo_url"):
+                            st.caption(f"Source: [Mayo Clinic]({info['mayo_url']})")
 
         st.divider()
         st.caption(
