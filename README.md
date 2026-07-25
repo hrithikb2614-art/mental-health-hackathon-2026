@@ -13,7 +13,7 @@ mental health emergency, contact your local emergency services immediately.
 
 ## Features
 
-The app has three tabs:
+The app has five tabs:
 
 1. **Kids & Teens Check-In** — a supportive, non-diagnostic self-reflection
    survey for young people. Surfaces gentle themes instead of condition
@@ -26,7 +26,12 @@ The app has three tabs:
    matched/missing symptoms, suggested next steps, a Mayo Clinic summary per
    condition, and an automatic safety banner with crisis hotline info if
    emergency symptoms are selected.
-3. **Find a Hospital** — click "Use my location" (uses your browser's
+3. **AI Assistant** — a RAG-powered chat that answers questions grounded in
+   documents loaded into a local knowledge base (see setup below). Falls
+   back to a clear setup message if not configured.
+4. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
+   `.pdf` files to the shared knowledge base the AI Assistant searches.
+5. **Find a Hospital** — click "Use my location" (uses your browser's
    geolocation) or type a city/address/zip, and see nearby hospitals on a
    free map with a distance-sorted list (address, phone, one-tap
    directions). Uses OpenStreetMap's free Nominatim (geocoding) and
@@ -39,11 +44,37 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-No API keys or setup are required — every tab works out of the box, as
-long as the machine running it has normal internet access (needed only by
-the Find a Hospital tab, to reach OpenStreetMap). Browser geolocation for
-"Use my location" requires a secure context (HTTPS, or `localhost` during
-local development) and the user granting permission when prompted.
+The Kids Check-In, Symptom Checker, and Find a Hospital tabs work with no
+further setup (Find a Hospital just needs normal internet access, and
+browser geolocation for "Use my location" needs a secure context — HTTPS,
+or `localhost` during local development — plus the user granting
+permission when prompted). The AI Assistant and Upload Documents tabs need
+the setup below.
+
+## AI Assistant setup (optional)
+
+The AI Assistant stores document embeddings in a local file
+(`data/knowledge_base.json`, gitignored) — no external database or account
+needed. It uses Claude (Anthropic) for chat answers and a local
+sentence-transformers model for embeddings, so only one API key is needed.
+
+1. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`
+   (already gitignored) and fill in:
+   - `ANTHROPIC_API_KEY` — an Anthropic API key
+   - `ADMIN_PASSWORD` — a password of your choosing; required to use the
+     Upload Documents tab, since uploaded documents are shared with every
+     visitor's AI Assistant
+2. Restart the app. Use the password-gated Upload Documents tab to add
+   `.txt`, `.md`, or `.pdf` files to the knowledge base, then ask questions
+   in the AI Assistant tab.
+
+Without `ANTHROPIC_API_KEY` configured, the AI Assistant and Upload
+Documents tabs show a setup message and the rest of the app works normally.
+Two notes:
+- The knowledge base lives on local disk, so it persists only for the
+  lifetime of the running app process — redeploying resets it.
+- The first embedding call downloads the local model (~90MB) if it isn't
+  already cached, so the first upload or question may take longer.
 
 ## How it works
 
