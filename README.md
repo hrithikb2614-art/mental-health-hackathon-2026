@@ -2,7 +2,8 @@
 
 A Streamlit app that helps users explore possible physical and mental health
 conditions based on selected symptoms, using a curated rule-based symptom
-overlap model (no external APIs or ML training required).
+overlap model (no external APIs or ML training required). It also includes a
+short, informal Mental Health Check-In Quiz.
 
 ## ⚠️ Disclaimer
 
@@ -22,6 +23,11 @@ mental health emergency, contact your local emergency services immediately.
 - Automatic safety banner with crisis hotline info if emergency symptoms
   (e.g. thoughts of self-harm, chest pain) are selected
 - Filter by Physical, Mental, or both
+- **Mental Health Check-In Quiz** (`pages/1_🧠_Mental_Health_Quiz.py`): a short,
+  informal 12-question self-reflection quiz covering mood, anxiety, stress,
+  sleep/energy, social connection, and focus/motivation. Gives an overall and
+  per-area score with a plain-language summary, plus a dedicated safety
+  question that immediately surfaces crisis resources if answered "Yes".
 
 ## Running locally
 
@@ -29,6 +35,8 @@ mental health emergency, contact your local emergency services immediately.
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+Use the sidebar page navigator to switch to the **Mental Health Quiz** page.
 
 ## How it works
 
