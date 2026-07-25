@@ -13,7 +13,7 @@ mental health emergency, contact your local emergency services immediately.
 
 ## Features
 
-The app has six tabs, and a sidebar language picker (English, Spanish,
+The app has seven tabs, and a sidebar language picker (English, Spanish,
 French, Hindi — see [Languages](#languages) below):
 
 1. **Kids & Teens Check-In** — a supportive, non-diagnostic self-reflection
@@ -41,9 +41,15 @@ French, Hindi — see [Languages](#languages) below):
    two indicators (Depression 0-27, Anxiety 0-12) into standard severity
    bands, links to the relevant condition write-up, and always shows crisis
    resources — never a diagnosis.
-5. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
+5. **Games & Breathing** — lightweight, non-clinical stress-relief tools:
+   guided breathing with an animated circle (Box Breathing, 4-7-8, and Deep
+   Belly Breathing patterns), a 5-4-3-2-1 grounding exercise, a bubble-pop
+   fidget game, a gratitude jar, and gentle affirmations. Always available
+   with no setup, and fully translated (hand-translated, no AI Assistant
+   required).
+6. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
    `.pdf` files to the shared knowledge base the AI Assistant searches.
-6. **Find a Hospital** — click "Use my location" (uses your browser's
+7. **Find a Hospital** — click "Use my location" (uses your browser's
    geolocation) or type a city/address/zip, and see nearby hospitals on a
    free map with a distance-sorted list (address, phone, one-tap
    directions). Uses OpenStreetMap's free Nominatim (geocoding) and

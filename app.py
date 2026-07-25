@@ -1,3 +1,5 @@
+import random
+
 import streamlit as st
 from streamlit_js_eval import get_geolocation
 
@@ -24,6 +26,13 @@ from mental_health_data import (
     ANXIETY_SEVERITY_BANDS,
     MENTAL_HEALTH_RESOURCES,
     severity_band,
+)
+from games_data import (
+    BREATHING_PATTERNS,
+    BREATHING_PATTERN_ORDER,
+    GROUNDING_STEPS,
+    BUBBLE_COUNT,
+    AFFIRMATIONS,
 )
 
 st.set_page_config(
@@ -343,7 +352,7 @@ def compute_matches(selected: list, diseases: dict) -> list:
 
 # ------------------------------------------------------------------ header ---
 
-_nav_tab_keys = ["tab_kids", "tab_checker", "tab_assistant", "tab_mental_health", "tab_upload", "tab_hospital"]
+_nav_tab_keys = ["tab_kids", "tab_checker", "tab_assistant", "tab_mental_health", "tab_games", "tab_upload", "tab_hospital"]
 _hero_circles_html = ""
 for _key in _nav_tab_keys:
     _label = i18n.t(lang, _key)
@@ -407,12 +416,13 @@ st.sidebar.markdown(
 
 # --------------------------------------------------------------------- tabs ---
 
-tab_kids, tab_checker, tab_assistant, tab_mental_health, tab_upload, tab_hospital = st.tabs(
+tab_kids, tab_checker, tab_assistant, tab_mental_health, tab_games, tab_upload, tab_hospital = st.tabs(
     [
         i18n.t(lang, "tab_kids"),
         i18n.t(lang, "tab_checker"),
         i18n.t(lang, "tab_assistant"),
         i18n.t(lang, "tab_mental_health"),
+        i18n.t(lang, "tab_games"),
         i18n.t(lang, "tab_upload"),
         i18n.t(lang, "tab_hospital"),
     ]
@@ -753,7 +763,200 @@ with tab_mental_health:
 
     st.caption(i18n.t(lang, "mh_footer_note"))
 
-# =================================================== Tab 5: Upload Documents ===
+# =========================================== Tab 5: Games & Breathing ===
+
+with tab_games:
+    st.subheader(i18n.t(lang, "games_subheader"))
+    st.caption(i18n.t(lang, "games_caption"))
+
+    # ---- Guided breathing -------------------------------------------------
+    st.markdown(f"### {i18n.t(lang, 'games_breathing_header')}")
+
+    breathing_labels_t = i18n.BREATHING_PATTERNS_I18N.get(lang, i18n.BREATHING_PATTERNS_I18N["en"])
+    pattern_key = st.selectbox(
+        i18n.t(lang, "games_breathing_select_label"),
+        options=BREATHING_PATTERN_ORDER,
+        format_func=lambda k: breathing_labels_t.get(k, i18n.BREATHING_PATTERNS_I18N["en"][k])[0],
+        key="games_breathing_pattern",
+    )
+    pattern = BREATHING_PATTERNS[pattern_key]
+    pattern_label, pattern_description = breathing_labels_t.get(
+        pattern_key, i18n.BREATHING_PATTERNS_I18N["en"][pattern_key]
+    )
+    st.caption(pattern_description)
+    st.caption(i18n.t(lang, "games_breathing_hint"))
+
+    inhale, hold1, exhale, hold2 = pattern["inhale"], pattern["hold1"], pattern["exhale"], pattern["hold2"]
+    total = inhale + hold1 + exhale + hold2
+    p_inhale = round(inhale / total * 100, 2)
+    p_hold1 = round((inhale + hold1) / total * 100, 2)
+    p_exhale = round((inhale + hold1 + exhale) / total * 100, 2)
+    gap = 1.5
+
+    phase_labels = [(0.0, p_inhale, i18n.t(lang, "games_phase_inhale"))]
+    if hold1 > 0:
+        phase_labels.append((p_inhale, p_hold1, i18n.t(lang, "games_phase_hold")))
+    phase_labels.append((p_hold1, p_exhale, i18n.t(lang, "games_phase_exhale")))
+    if hold2 > 0:
+        phase_labels.append((p_exhale, 100.0, i18n.t(lang, "games_phase_hold")))
+
+    label_spans = ""
+    label_keyframes = ""
+    for idx, (start, end, text) in enumerate(phase_labels):
+        fade_in_end = min(start + gap, end)
+        fade_out_start = max(end - gap, start)
+        label_spans += f'<span class="bh-label bh-label-{idx}">{text}</span>'
+        label_keyframes += f"""
+        @keyframes bh-label-{idx}-fade {{
+            0% {{ opacity: 0; }}
+            {start}% {{ opacity: 0; }}
+            {fade_in_end}% {{ opacity: 1; }}
+            {fade_out_start}% {{ opacity: 1; }}
+            {end}% {{ opacity: 0; }}
+            100% {{ opacity: 0; }}
+        }}
+        .bh-label-{idx} {{ animation: bh-label-{idx}-fade {total}s linear infinite; }}
+        """
+
+    st.markdown(
+        f"""
+        <style>
+        @keyframes bh-scale {{
+            0% {{ transform: scale(0.55); }}
+            {p_inhale}% {{ transform: scale(1); }}
+            {p_hold1}% {{ transform: scale(1); }}
+            {p_exhale}% {{ transform: scale(0.55); }}
+            100% {{ transform: scale(0.55); }}
+        }}
+        .bh-wrap {{
+            display: flex;
+            justify-content: center;
+            padding: 2rem 0 2.5rem 0;
+        }}
+        .bh-circle {{
+            position: relative;
+            width: 14rem;
+            height: 14rem;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #00C2FF 0%, #0067B1 55%, #0B2D4D 100%);
+            box-shadow: 0 0 50px rgba(0, 144, 209, 0.45);
+            animation: bh-scale {total}s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .bh-label {{
+            position: absolute;
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 1.3rem;
+            text-align: center;
+            opacity: 0;
+        }}
+        {label_keyframes}
+        </style>
+        <div class="bh-wrap"><div class="bh-circle">{label_spans}</div></div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+
+    # ---- 5-4-3-2-1 grounding exercise --------------------------------------
+    st.markdown(f"### {i18n.t(lang, 'games_grounding_header')}")
+    st.caption(i18n.t(lang, "games_grounding_caption"))
+
+    grounding_labels_t = i18n.GROUNDING_LABELS_I18N.get(lang, i18n.GROUNDING_LABELS_I18N["en"])
+    grounding_filled = True
+    for sense_key, count, emoji in GROUNDING_STEPS:
+        label = grounding_labels_t.get(sense_key, i18n.GROUNDING_LABELS_I18N["en"][sense_key])
+        st.markdown(f"**{emoji} {count} {label}**")
+        cols = st.columns(count)
+        for i, col in enumerate(cols):
+            with col:
+                value = st.text_input(
+                    f"{sense_key}_{i}", key=f"ground_{sense_key}_{i}", label_visibility="collapsed"
+                )
+                if not value:
+                    grounding_filled = False
+
+    if grounding_filled:
+        st.success(i18n.t(lang, "games_grounding_complete"))
+
+    st.divider()
+
+    # ---- Bubble pop ---------------------------------------------------------
+    st.markdown(f"### {i18n.t(lang, 'games_bubbles_header')}")
+    st.caption(i18n.t(lang, "games_bubbles_caption"))
+
+    if "games_bubbles" not in st.session_state:
+        st.session_state["games_bubbles"] = [False] * BUBBLE_COUNT
+
+    bubbles = st.session_state["games_bubbles"]
+    popped = sum(bubbles)
+    st.caption(i18n.t(lang, "games_bubbles_counter", popped=popped, total=BUBBLE_COUNT))
+
+    bubble_cols = st.columns(8)
+    for i in range(BUBBLE_COUNT):
+        col = bubble_cols[i % 8]
+        with col:
+            if bubbles[i]:
+                st.button("💨", key=f"bubble_{i}", disabled=True)
+            else:
+                if st.button("🔵", key=f"bubble_{i}"):
+                    st.session_state["games_bubbles"][i] = True
+                    st.rerun()
+
+    if st.button(i18n.t(lang, "games_bubbles_reset"), key="games_bubbles_reset"):
+        st.session_state["games_bubbles"] = [False] * BUBBLE_COUNT
+        st.rerun()
+
+    st.divider()
+
+    # ---- Gratitude jar --------------------------------------------------------
+    st.markdown(f"### {i18n.t(lang, 'games_gratitude_header')}")
+    st.caption(i18n.t(lang, "games_gratitude_caption"))
+
+    if "games_gratitude_jar" not in st.session_state:
+        st.session_state["games_gratitude_jar"] = []
+
+    with st.form(key="games_gratitude_form", clear_on_submit=True):
+        g1 = st.text_input(i18n.t(lang, "games_gratitude_placeholder"), key="games_grat_1")
+        g2 = st.text_input(i18n.t(lang, "games_gratitude_placeholder"), key="games_grat_2")
+        g3 = st.text_input(i18n.t(lang, "games_gratitude_placeholder"), key="games_grat_3")
+        if st.form_submit_button(i18n.t(lang, "games_gratitude_add"), type="primary"):
+            for entry in (g1, g2, g3):
+                if entry.strip():
+                    st.session_state["games_gratitude_jar"].append(entry.strip())
+
+    if st.session_state["games_gratitude_jar"]:
+        for entry in st.session_state["games_gratitude_jar"]:
+            st.markdown(f"- 🌟 {entry}")
+        if st.button(i18n.t(lang, "games_gratitude_clear"), key="games_gratitude_clear"):
+            st.session_state["games_gratitude_jar"] = []
+            st.rerun()
+    else:
+        st.info(i18n.t(lang, "games_gratitude_empty"))
+
+    st.divider()
+
+    # ---- Affirmations -----------------------------------------------------
+    st.markdown(f"### {i18n.t(lang, 'games_affirmation_header')}")
+    st.caption(i18n.t(lang, "games_affirmation_caption"))
+
+    if st.button(i18n.t(lang, "games_affirmation_button"), type="primary", key="games_affirmation_btn"):
+        st.session_state["games_affirmation_idx"] = random.randrange(len(AFFIRMATIONS))
+
+    if "games_affirmation_idx" in st.session_state:
+        localized_affirmations = i18n.AFFIRMATIONS_I18N.get(lang, AFFIRMATIONS)
+        idx = st.session_state["games_affirmation_idx"]
+        text = localized_affirmations[idx] if idx < len(localized_affirmations) else AFFIRMATIONS[idx]
+        with st.container(border=True):
+            st.markdown(f"#### 💛 {text}")
+
+    st.caption(i18n.t(lang, "games_footer_note"))
+
+# =================================================== Tab 6: Upload Documents ===
 
 with tab_upload:
     st.subheader(i18n.t(lang, "upload_subheader"))
@@ -792,7 +995,7 @@ with tab_upload:
             elif entered_password:
                 st.error(i18n.t(lang, "upload_incorrect_password"))
 
-# ==================================================== Tab 6: Find a Hospital ===
+# ==================================================== Tab 7: Find a Hospital ===
 
 with tab_hospital:
     st.subheader(i18n.t(lang, "hospital_subheader"))

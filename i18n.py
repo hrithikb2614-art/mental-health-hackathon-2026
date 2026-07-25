@@ -256,6 +256,43 @@ UI_STRINGS = {
             "This check-in does not replace a conversation with a licensed mental health "
             "professional. If anything here concerns you, please reach out for support."
         ),
+        "tab_games": "🧘 Games & Breathing",
+        "games_subheader": "Take a breather",
+        "games_caption": (
+            "A few simple, non-clinical tools for stress relief — guided breathing, a "
+            "grounding exercise, a stress-relief bubble popper, a gratitude jar, and "
+            "gentle affirmations. Not a treatment or substitute for professional care."
+        ),
+        "games_breathing_header": "🌬️ Guided breathing",
+        "games_breathing_select_label": "Choose a breathing pattern",
+        "games_breathing_hint": "Follow the circle: grow as you breathe in, hold, shrink as you breathe out, hold.",
+        "games_phase_inhale": "Inhale",
+        "games_phase_hold": "Hold",
+        "games_phase_exhale": "Exhale",
+        "games_grounding_header": "🌳 5-4-3-2-1 grounding exercise",
+        "games_grounding_caption": (
+            "A classic grounding technique to help settle a busy mind by noticing your "
+            "surroundings through your senses."
+        ),
+        "games_grounding_complete": "Nice work grounding yourself in the present moment. 🌿",
+        "games_bubbles_header": "🫧 Bubble pop",
+        "games_bubbles_caption": "A little fidget toy — pop a few bubbles to blow off some steam.",
+        "games_bubbles_counter": "Popped: {popped} / {total}",
+        "games_bubbles_reset": "Refill bubbles",
+        "games_gratitude_header": "📝 Gratitude jar",
+        "games_gratitude_caption": "Jot down a few small things you're grateful for today.",
+        "games_gratitude_placeholder": "Something you're grateful for...",
+        "games_gratitude_add": "Add to jar",
+        "games_gratitude_clear": "Clear jar",
+        "games_gratitude_empty": "Your jar is empty — add something small and good from today.",
+        "games_affirmation_header": "💛 Gentle affirmations",
+        "games_affirmation_caption": "A little reminder, whenever you need one.",
+        "games_affirmation_button": "Show me an affirmation",
+        "games_footer_note": (
+            "These are simple relaxation tools, not therapy or medical treatment. If you're "
+            "struggling, the Mental Health Check-In tab has resources, including the 988 "
+            "Suicide & Crisis Lifeline."
+        ),
         "assistant_subheader": "Ask a question",
         "assistant_caption": (
             "A healthcare-savvy AI assistant grounded in this app's own condition data — plus "
@@ -479,6 +516,44 @@ UI_STRINGS["es"] = {
     "mh_footer_note": (
         "Este chequeo no reemplaza una conversación con un profesional de salud mental con "
         "licencia. Si algo aquí te preocupa, por favor busca apoyo."
+    ),
+    "tab_games": "🧘 Juegos y respiración",
+    "games_subheader": "Tómate un respiro",
+    "games_caption": (
+        "Algunas herramientas simples y no clínicas para aliviar el estrés: respiración "
+        "guiada, un ejercicio de conexión con el presente, un juego de burbujas "
+        "antiestrés, un frasco de gratitud y afirmaciones suaves. No es un tratamiento ni "
+        "sustituye la atención profesional."
+    ),
+    "games_breathing_header": "🌬️ Respiración guiada",
+    "games_breathing_select_label": "Elige un patrón de respiración",
+    "games_breathing_hint": "Sigue el círculo: crece al inhalar, se mantiene, se encoge al exhalar, se mantiene.",
+    "games_phase_inhale": "Inhala",
+    "games_phase_hold": "Mantén",
+    "games_phase_exhale": "Exhala",
+    "games_grounding_header": "🌳 Ejercicio de conexión 5-4-3-2-1",
+    "games_grounding_caption": (
+        "Una técnica clásica para calmar una mente ocupada notando tu entorno a través de "
+        "los sentidos."
+    ),
+    "games_grounding_complete": "Buen trabajo conectando con el presente. 🌿",
+    "games_bubbles_header": "🫧 Burbujas antiestrés",
+    "games_bubbles_caption": "Un pequeño juego para las manos — revienta algunas burbujas para liberar tensión.",
+    "games_bubbles_counter": "Reventadas: {popped} / {total}",
+    "games_bubbles_reset": "Rellenar burbujas",
+    "games_gratitude_header": "📝 Frasco de gratitud",
+    "games_gratitude_caption": "Anota algunas cosas pequeñas por las que estás agradecido hoy.",
+    "games_gratitude_placeholder": "Algo por lo que estás agradecido...",
+    "games_gratitude_add": "Añadir al frasco",
+    "games_gratitude_clear": "Vaciar frasco",
+    "games_gratitude_empty": "Tu frasco está vacío — añade algo pequeño y bueno de hoy.",
+    "games_affirmation_header": "💛 Afirmaciones suaves",
+    "games_affirmation_caption": "Un pequeño recordatorio, cuando lo necesites.",
+    "games_affirmation_button": "Muéstrame una afirmación",
+    "games_footer_note": (
+        "Estas son herramientas de relajación simples, no terapia ni tratamiento médico. Si "
+        "estás pasando por un momento difícil, la pestaña de Chequeo de salud mental tiene "
+        "recursos, incluida la línea 988 de Suicidio y Crisis."
     ),
     "assistant_subheader": "Haz una pregunta",
     "assistant_caption": (
@@ -705,6 +780,44 @@ UI_STRINGS["fr"] = {
         "Ce bilan ne remplace pas une conversation avec un professionnel de la santé mentale "
         "agréé. Si quelque chose ici vous préoccupe, n'hésitez pas à demander du soutien."
     ),
+    "tab_games": "🧘 Jeux et respiration",
+    "games_subheader": "Prenez un moment pour respirer",
+    "games_caption": (
+        "Quelques outils simples et non cliniques pour soulager le stress : respiration "
+        "guidée, un exercice d'ancrage, un jeu de bulles anti-stress, un bocal de "
+        "gratitude et des affirmations bienveillantes. Ce n'est pas un traitement et cela "
+        "ne remplace pas les soins professionnels."
+    ),
+    "games_breathing_header": "🌬️ Respiration guidée",
+    "games_breathing_select_label": "Choisissez un rythme de respiration",
+    "games_breathing_hint": "Suivez le cercle : il grandit à l'inspiration, se maintient, se réduit à l'expiration, se maintient.",
+    "games_phase_inhale": "Inspirez",
+    "games_phase_hold": "Retenez",
+    "games_phase_exhale": "Expirez",
+    "games_grounding_header": "🌳 Exercice d'ancrage 5-4-3-2-1",
+    "games_grounding_caption": (
+        "Une technique d'ancrage classique pour apaiser un esprit agité en observant votre "
+        "environnement à travers vos sens."
+    ),
+    "games_grounding_complete": "Bien joué, vous vous êtes ancré dans le moment présent. 🌿",
+    "games_bubbles_header": "🫧 Bulles anti-stress",
+    "games_bubbles_caption": "Un petit jeu pour les mains — éclatez quelques bulles pour évacuer la tension.",
+    "games_bubbles_counter": "Éclatées : {popped} / {total}",
+    "games_bubbles_reset": "Remplir les bulles",
+    "games_gratitude_header": "📝 Bocal de gratitude",
+    "games_gratitude_caption": "Notez quelques petites choses pour lesquelles vous êtes reconnaissant aujourd'hui.",
+    "games_gratitude_placeholder": "Quelque chose pour lequel vous êtes reconnaissant...",
+    "games_gratitude_add": "Ajouter au bocal",
+    "games_gratitude_clear": "Vider le bocal",
+    "games_gratitude_empty": "Votre bocal est vide — ajoutez quelque chose de petit et de bon aujourd'hui.",
+    "games_affirmation_header": "💛 Affirmations bienveillantes",
+    "games_affirmation_caption": "Un petit rappel, quand vous en avez besoin.",
+    "games_affirmation_button": "Montrez-moi une affirmation",
+    "games_footer_note": (
+        "Ce sont de simples outils de relaxation, pas une thérapie ni un traitement "
+        "médical. Si vous traversez une période difficile, l'onglet Bilan de santé "
+        "mentale propose des ressources, dont la ligne 988 Suicide & Crisis Lifeline."
+    ),
     "assistant_subheader": "Posez une question",
     "assistant_caption": (
         "Un assistant IA compétent en santé, ancré dans les propres données sur les affections "
@@ -923,6 +1036,42 @@ UI_STRINGS["hi"] = {
         "यह जाँच किसी लाइसेंस प्राप्त मानसिक स्वास्थ्य पेशेवर के साथ बातचीत का विकल्प नहीं है। यदि "
         "यहाँ कुछ भी आपको चिंतित करता है, तो कृपया सहायता लें।"
     ),
+    "tab_games": "🧘 खेल और श्वास अभ्यास",
+    "games_subheader": "थोड़ी सांस लें",
+    "games_caption": (
+        "तनाव कम करने के लिए कुछ सरल, गैर-चिकित्सीय उपकरण — निर्देशित श्वास, एक ग्राउंडिंग "
+        "अभ्यास, तनाव-मुक्ति के लिए बबल पॉप गेम, एक आभार जार, और सौम्य पुष्टिकरण। यह उपचार "
+        "नहीं है और पेशेवर देखभाल का विकल्प नहीं है।"
+    ),
+    "games_breathing_header": "🌬️ निर्देशित श्वास",
+    "games_breathing_select_label": "एक श्वास पैटर्न चुनें",
+    "games_breathing_hint": "वृत्त का अनुसरण करें: सांस लेते समय बड़ा हो, रुके, सांस छोड़ते समय छोटा हो, फिर रुके।",
+    "games_phase_inhale": "सांस लें",
+    "games_phase_hold": "रोकें",
+    "games_phase_exhale": "सांस छोड़ें",
+    "games_grounding_header": "🌳 5-4-3-2-1 ग्राउंडिंग अभ्यास",
+    "games_grounding_caption": (
+        "अपनी इंद्रियों के माध्यम से अपने आस-पास को महसूस करके व्यस्त मन को शांत करने की एक "
+        "पारंपरिक ग्राउंडिंग तकनीक।"
+    ),
+    "games_grounding_complete": "वर्तमान क्षण में खुद को स्थिर करने के लिए बढ़िया काम। 🌿",
+    "games_bubbles_header": "🫧 बबल पॉप",
+    "games_bubbles_caption": "एक छोटा सा फिजेट खिलौना — तनाव दूर करने के लिए कुछ बबल पॉप करें।",
+    "games_bubbles_counter": "फोड़े गए: {popped} / {total}",
+    "games_bubbles_reset": "बबल फिर से भरें",
+    "games_gratitude_header": "📝 आभार जार",
+    "games_gratitude_caption": "आज आप जिन छोटी-छोटी बातों के लिए आभारी हैं, उन्हें लिखें।",
+    "games_gratitude_placeholder": "कुछ ऐसा जिसके लिए आप आभारी हैं...",
+    "games_gratitude_add": "जार में जोड़ें",
+    "games_gratitude_clear": "जार खाली करें",
+    "games_gratitude_empty": "आपका जार खाली है — आज की कोई छोटी और अच्छी बात जोड़ें।",
+    "games_affirmation_header": "💛 सौम्य पुष्टिकरण",
+    "games_affirmation_caption": "जब भी आपको ज़रूरत हो, एक छोटी याद दिलाने वाली बात।",
+    "games_affirmation_button": "मुझे एक पुष्टिकरण दिखाएँ",
+    "games_footer_note": (
+        "ये सरल विश्राम उपकरण हैं, चिकित्सा या उपचार नहीं। यदि आप कठिनाई महसूस कर रहे हैं, तो "
+        "मानसिक स्वास्थ्य जाँच टैब में 988 सुसाइड एंड क्राइसिस लाइफ़लाइन सहित संसाधन उपलब्ध हैं।"
+    ),
     "assistant_subheader": "एक सवाल पूछें",
     "assistant_caption": (
         "इस ऐप के अपने स्थिति डेटा पर आधारित एक स्वास्थ्य-कुशल AI सहायक — साथ ही नॉलेज बेस में लोड "
@@ -1085,6 +1234,78 @@ MENTAL_HEALTH_RESOURCE_DETAILS_I18N = {
         "उपयोग करें)।",
         "1-800-662-HELP (4357) पर कॉल करें, 24/7/365, मुफ़्त और गोपनीय, अंग्रेज़ी और स्पैनिश में। "
         "मानसिक स्वास्थ्य और नशे से जुड़े उपचार के लिए रेफ़रल।",
+    ],
+}
+
+# Translated (label, description) for games_data.BREATHING_PATTERNS, keyed the same way.
+BREATHING_PATTERNS_I18N = {
+    "en": {
+        "box": ("Box Breathing", "Equal-count inhale, hold, exhale, and hold — used by athletes and first responders to calm down quickly."),
+        "relaxing": ("4-7-8 Relaxing Breath", "A longer exhale than inhale helps activate your body's relaxation response."),
+        "belly": ("Deep Belly Breathing", "Slow, deep breaths from the diaphragm to ease tension and lower your heart rate."),
+    },
+    "es": {
+        "box": ("Respiración cuadrada", "Inhala, mantén, exhala y mantén con la misma duración — usada por atletas y socorristas para calmarse rápido."),
+        "relaxing": ("Respiración relajante 4-7-8", "Una exhalación más larga que la inhalación ayuda a activar la respuesta de relajación del cuerpo."),
+        "belly": ("Respiración abdominal profunda", "Respiraciones lentas y profundas desde el diafragma para aliviar la tensión y bajar el ritmo cardíaco."),
+    },
+    "fr": {
+        "box": ("Respiration carrée", "Inspirez, retenez, expirez et retenez pendant une durée égale — utilisée par les athlètes et les secouristes pour se calmer rapidement."),
+        "relaxing": ("Respiration relaxante 4-7-8", "Une expiration plus longue que l'inspiration aide à activer la réponse de relaxation du corps."),
+        "belly": ("Respiration abdominale profonde", "Des respirations lentes et profondes depuis le diaphragme pour relâcher la tension et ralentir le rythme cardiaque."),
+    },
+    "hi": {
+        "box": ("बॉक्स ब्रीदिंग", "बराबर गिनती में सांस लें, रोकें, छोड़ें और रोकें — एथलीट और आपातकालीन कर्मी इसका उपयोग जल्दी शांत होने के लिए करते हैं।"),
+        "relaxing": ("4-7-8 आरामदायक श्वास", "सांस छोड़ना, सांस लेने से लंबा होने पर शरीर की विश्राम प्रतिक्रिया सक्रिय होने में मदद मिलती है।"),
+        "belly": ("गहरी पेट की श्वास", "डायाफ्राम से धीमी, गहरी सांसें तनाव कम करने और हृदय गति घटाने में मदद करती हैं।"),
+    },
+}
+
+# Translated sense labels for games_data.GROUNDING_STEPS, keyed by sense id.
+GROUNDING_LABELS_I18N = {
+    "en": {"see": "things you can see", "touch": "things you can touch", "hear": "things you can hear", "smell": "things you can smell", "taste": "thing you can taste"},
+    "es": {"see": "cosas que puedes ver", "touch": "cosas que puedes tocar", "hear": "cosas que puedes oír", "smell": "cosas que puedes oler", "taste": "cosa que puedes saborear"},
+    "fr": {"see": "choses que vous pouvez voir", "touch": "choses que vous pouvez toucher", "hear": "choses que vous pouvez entendre", "smell": "choses que vous pouvez sentir", "taste": "chose que vous pouvez goûter"},
+    "hi": {"see": "चीज़ें जो आप देख सकते हैं", "touch": "चीज़ें जो आप छू सकते हैं", "hear": "चीज़ें जो आप सुन सकते हैं", "smell": "चीज़ें जिन्हें आप सूंघ सकते हैं", "taste": "एक चीज़ जिसे आप चख सकते हैं"},
+}
+
+# Translated affirmations, index-aligned with games_data.AFFIRMATIONS.
+AFFIRMATIONS_I18N = {
+    "es": [
+        "Este sentimiento es temporal y pasará.",
+        "Estoy haciendo lo mejor que puedo con lo que tengo ahora mismo.",
+        "Está bien descansar. Descansar también es productivo.",
+        "No tengo que tenerlo todo resuelto hoy.",
+        "Tengo derecho a ocupar espacio y pedir ayuda.",
+        "Los pequeños pasos también cuentan como progreso.",
+        "He superado días difíciles antes, y puedo superar este también.",
+        "Mis sentimientos son válidos, incluso cuando son difíciles de explicar.",
+        "No soy mis pensamientos. Puedo observarlos sin creer en todos ellos.",
+        "Ser amable conmigo mismo no es egoísta, es necesario.",
+    ],
+    "fr": [
+        "Ce sentiment est temporaire, et il va passer.",
+        "Je fais de mon mieux avec ce que j'ai en ce moment.",
+        "C'est normal de se reposer. Se reposer, c'est aussi productif.",
+        "Je n'ai pas besoin de tout comprendre aujourd'hui.",
+        "J'ai le droit de prendre de la place et de demander de l'aide.",
+        "Les petits pas comptent aussi comme des progrès.",
+        "J'ai déjà traversé des jours difficiles, et je peux traverser celui-ci aussi.",
+        "Mes émotions sont valables, même quand elles sont difficiles à expliquer.",
+        "Je ne suis pas mes pensées. Je peux les observer sans toutes les croire.",
+        "Être bienveillant envers moi-même n'est pas égoïste, c'est nécessaire.",
+    ],
+    "hi": [
+        "यह एहसास अस्थायी है, और यह गुज़र जाएगा।",
+        "मैं अभी जो कुछ भी है उसके साथ अपना सर्वश्रेष्ठ प्रयास कर रहा/रही हूँ।",
+        "आराम करना ठीक है। आराम करना भी उत्पादक है।",
+        "मुझे आज ही सब कुछ समझ लेने की ज़रूरत नहीं है।",
+        "मुझे जगह लेने और मदद माँगने का अधिकार है।",
+        "छोटे कदम भी प्रगति में गिने जाते हैं।",
+        "मैंने पहले भी कठिन दिन पार किए हैं, और मैं इसे भी पार कर सकता/सकती हूँ।",
+        "मेरी भावनाएँ मान्य हैं, भले ही उन्हें समझाना मुश्किल हो।",
+        "मैं अपने विचार नहीं हूँ। मैं उन्हें बिना हर एक पर विश्वास किए देख सकता/सकती हूँ।",
+        "खुद के प्रति दयालु होना स्वार्थी नहीं, ज़रूरी है।",
     ],
 }
 
