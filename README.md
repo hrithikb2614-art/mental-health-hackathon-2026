@@ -13,7 +13,7 @@ mental health emergency, contact your local emergency services immediately.
 
 ## Features
 
-The app has three tabs:
+The app has four tabs:
 
 1. **Kids & Teens Check-In** — a supportive, non-diagnostic self-reflection
    survey for young people. Surfaces gentle themes instead of condition
@@ -29,6 +29,8 @@ The app has three tabs:
 3. **AI Assistant** — a RAG-powered chat that answers questions grounded in
    documents loaded into a Supabase knowledge base (see setup below). Falls
    back to a clear setup message if not configured.
+4. **Upload Documents** — a password-gated page to add `.txt`, `.md`, or
+   `.pdf` files to the shared knowledge base the AI Assistant searches.
 
 ## Running locally
 
@@ -38,7 +40,7 @@ streamlit run app.py
 ```
 
 The Kids Check-In and Symptom Checker tabs work with no further setup. The
-AI Assistant tab needs the setup below.
+AI Assistant and Upload Documents tabs need the setup below.
 
 ## AI Assistant setup (optional)
 
@@ -53,14 +55,14 @@ to store document embeddings and OpenAI for embeddings and chat answers.
    - `SUPABASE_URL` / `SUPABASE_KEY` — from your Supabase project's API
      settings
    - `OPENAI_API_KEY` — an OpenAI API key
-   - `ADMIN_PASSWORD` — a password of your choosing; required to see the
-     "Load a document" uploader in the AI Assistant tab, since uploaded
-     documents are shared with every visitor
-3. Restart the app. Use the password-gated uploader to add `.txt`, `.md`,
-   or `.pdf` files to the knowledge base, then ask questions in the chat.
+   - `ADMIN_PASSWORD` — a password of your choosing; required to use the
+     Upload Documents tab, since uploaded documents are shared with every
+     visitor's AI Assistant
+3. Restart the app. Use the password-gated Upload Documents tab to add
+   files to the knowledge base, then ask questions in the AI Assistant tab.
 
-Without these secrets configured, the AI Assistant tab shows a setup
-message and the rest of the app works normally.
+Without these secrets configured, the AI Assistant and Upload Documents
+tabs show a setup message and the rest of the app works normally.
 
 ## How it works
 
