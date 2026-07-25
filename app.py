@@ -395,10 +395,7 @@ with tab_assistant:
     )
 
     if not rag.is_configured():
-        st.warning(
-            "The AI Assistant isn't set up yet. Add `ANTHROPIC_API_KEY` to "
-            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
-        )
+        st.warning(f"The AI Assistant isn't set up yet. {rag.setup_issue()}")
     else:
         if "assistant_history" not in st.session_state:
             st.session_state.assistant_history = []
@@ -449,10 +446,7 @@ with tab_upload:
     )
 
     if not rag.is_configured():
-        st.warning(
-            "Document upload isn't set up yet. Add `ANTHROPIC_API_KEY` to "
-            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
-        )
+        st.warning(f"Document upload isn't set up yet. {rag.setup_issue()}")
     else:
         stats = rag.store_stats()
         st.caption(

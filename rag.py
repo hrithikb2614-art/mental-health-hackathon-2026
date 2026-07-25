@@ -52,20 +52,45 @@ def contains_crisis_language(text: str) -> bool:
     return any(keyword in lowered for keyword in CRISIS_KEYWORDS)
 
 
+def _secrets_read_error() -> str:
+    """Return a description of a real problem reading secrets.toml, or "" if it's fine
+    (including the normal case of no secrets.toml existing at all)."""
+    try:
+        list(st.secrets.keys())
+        return ""
+    except Exception as exc:
+        message = str(exc)
+        if "parsing secrets file" in message.lower():
+            return f"secrets.toml has a syntax error: {message}"
+        return ""  # no secrets.toml at all is expected/normal, not an error
+
+
 def _has_secret(key: str) -> bool:
     try:
         return key in st.secrets
     except Exception:
-        # Raised when no secrets.toml exists at all rather than an empty one.
         return False
 
 
 def is_configured() -> bool:
-    return _has_secret("ANTHROPIC_API_KEY")
+    return not _secrets_read_error() and _has_secret("ANTHROPIC_API_KEY")
 
 
 def missing_secrets() -> list:
     return [] if _has_secret("ANTHROPIC_API_KEY") else ["ANTHROPIC_API_KEY"]
+
+
+def setup_issue() -> str:
+    """Human-readable explanation of why the AI Assistant isn't configured, or "" if it is."""
+    read_error = _secrets_read_error()
+    if read_error:
+        return read_error
+    if not _has_secret("ANTHROPIC_API_KEY"):
+        return (
+            "Add `ANTHROPIC_API_KEY` to `.streamlit/secrets.toml` — see "
+            "`.streamlit/secrets.toml.example` for setup."
+        )
+    return ""
 
 
 def get_secret(key: str, default=None):
