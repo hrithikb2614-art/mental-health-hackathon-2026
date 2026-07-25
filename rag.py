@@ -21,23 +21,31 @@ import streamlit as st
 
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHAT_MODEL = "claude-sonnet-5"
-CHAT_MAX_TOKENS = 1024
+CHAT_MAX_TOKENS = 1536
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
 
 KNOWLEDGE_BASE_PATH = Path(__file__).parent / "data" / "knowledge_base.json"
 
 SYSTEM_PROMPT = (
-    "You are a supportive assistant answering questions using only the reference "
-    "excerpts provided below. You are not a doctor or therapist and must not "
-    "diagnose, prescribe, or claim certainty about someone's health. If the "
-    "excerpts don't contain a real answer, say so plainly instead of guessing. "
-    "Keep answers concise, cite which source each claim comes from by filename, "
-    "and end every answer by encouraging the person to talk to a qualified "
-    "professional for anything health-related. If the question suggests the "
-    "person may be in crisis or thinking of self-harm, say clearly that their "
-    "safety matters most and point them to the 988 Suicide & Crisis Lifeline "
-    "(call or text 988) before anything else."
+    "You are a knowledgeable healthcare information assistant inside a physical- and "
+    "mental-health symptom-checker app. Answer using two sources: (1) the reference "
+    "excerpts provided below, when they're relevant — cite the source by name for any "
+    "claim drawn from them — and (2) your own general medical and mental-health "
+    "knowledge whenever the excerpts are missing, incomplete, or off-topic. Never refuse "
+    "to answer a general health question just because the excerpts don't cover it; give "
+    "a clear, accurate, well-explained answer either way, drawing on real clinical "
+    "knowledge (mechanisms, typical symptoms, causes, red flags, standard treatment "
+    "approaches, when to seek care). "
+    "You are not a doctor or therapist: never diagnose a specific person, prescribe "
+    "medication or dosages, or claim certainty about what someone individually has. "
+    "Keep answers clear and appropriately thorough — a short paragraph or a few bullet "
+    "points for straightforward questions, more detail for complex ones — and close by "
+    "encouraging the person to confirm anything health-related with a qualified "
+    "professional. Use the ongoing conversation history for context on follow-up "
+    "questions. If the question suggests the person may be in crisis or thinking of "
+    "self-harm, say clearly that their safety matters most and point them to the 988 "
+    "Suicide & Crisis Lifeline (call or text 988) before anything else."
 )
 
 
@@ -143,6 +151,49 @@ def store_stats() -> dict:
     }
 
 
+def _seed_default_knowledge_base() -> int:
+    """Seed the knowledge base with this app's own curated health content, if empty."""
+    if _load_store():
+        return 0
+
+    from health_data import DISEASES
+    from kids_data import KIDS_THEMES
+
+    documents = []
+    for name, info in DISEASES.items():
+        parts = [f"{name} ({info['category']} condition).", info["description"]]
+        if info.get("mayo_summary"):
+            parts.append(info["mayo_summary"])
+        parts.append(f"Typical symptoms: {', '.join(info['symptoms'])}.")
+        parts.append(f"Suggested next step: {info['advice']}")
+        documents.append((f"app knowledge base: {name}", " ".join(parts)))
+
+    for theme in KIDS_THEMES.values():
+        text = f"{theme['title']}. {theme['blurb']} Tip: {theme['tip']}"
+        documents.append((f"app knowledge base: Kids Check-In — {theme['title']}", text))
+
+    # Embed everything in one batch call so a failure (e.g. no network to fetch the
+    # embedding model) fails once, fast — instead of retrying per document.
+    try:
+        embeddings = embed_texts([text for _, text in documents])
+    except Exception:
+        return 0
+
+    store = _load_store()
+    store.extend(
+        {"source": filename, "chunk_index": 0, "content": text, "embedding": embedding}
+        for (filename, text), embedding in zip(documents, embeddings)
+    )
+    _save_store(store)
+    return len(documents)
+
+
+@st.cache_resource
+def ensure_default_knowledge_base_seeded() -> int:
+    """Run the default seeding exactly once per app process (cached across sessions)."""
+    return _seed_default_knowledge_base()
+
+
 def upsert_document(filename: str, text: str) -> int:
     """Chunk, embed, and append a document's text to the local store. Returns chunk count."""
     chunks = chunk_text(text)
@@ -183,24 +234,33 @@ def search_similar(query: str, match_count: int = 5) -> list:
     ]
 
 
-def generate_answer(question: str, matches: list) -> str:
+def generate_answer(question: str, matches: list, history: list = None) -> str:
     client = get_anthropic_client()
     if matches:
         context = "\n\n".join(
             f"[Source: {m['source']}]\n{m['content']}" for m in matches
         )
     else:
-        context = "(No matching reference excerpts were found in the knowledge base.)"
+        context = (
+            "(No matching reference excerpts were found in the knowledge base — answer "
+            "from your own general medical/mental-health knowledge instead.)"
+        )
+
+    messages = [dict(turn) for turn in (history or [])]
+    messages.append(
+        {
+            "role": "user",
+            "content": f"Reference excerpts:\n{context}\n\nQuestion: {question}",
+        }
+    )
 
     response = client.messages.create(
         model=CHAT_MODEL,
         max_tokens=CHAT_MAX_TOKENS,
         system=SYSTEM_PROMPT,
-        messages=[
-            {
-                "role": "user",
-                "content": f"Reference excerpts:\n{context}\n\nQuestion: {question}",
-            },
-        ],
+        messages=messages,
     )
-    return response.content[0].text
+    # Some models emit a thinking block ahead of the text block, so pick out
+    # the text block(s) rather than assuming content[0] is text.
+    text_blocks = [block.text for block in response.content if getattr(block, "type", None) == "text"]
+    return "\n".join(text_blocks)
