@@ -121,6 +121,7 @@ UI_STRINGS = {
         ),
         "breadcrumb": "Home &nbsp;›&nbsp; Diseases &amp; Conditions &nbsp;›&nbsp; Symptom &amp; Wellness Checker",
         "topbar": "🩺&nbsp; Symptom &amp; Wellness Checker",
+        "hero_explore_label": "Explore this app",
         "footer": (
             "Built for educational/hackathon purposes. Always consult a licensed medical "
             "or mental health professional for real diagnosis and treatment."
@@ -344,6 +345,7 @@ UI_STRINGS["es"] = {
     ),
     "breadcrumb": "Inicio &nbsp;›&nbsp; Enfermedades y afecciones &nbsp;›&nbsp; Verificador de síntomas y bienestar",
     "topbar": "🩺&nbsp; Verificador de síntomas y bienestar",
+    "hero_explore_label": "Explorar esta app",
     "footer": (
         "Creado con fines educativos/de hackathon. Consulta siempre a un profesional médico "
         "o de salud mental con licencia para un diagnóstico y tratamiento reales."
@@ -564,6 +566,7 @@ UI_STRINGS["fr"] = {
     ),
     "breadcrumb": "Accueil &nbsp;›&nbsp; Maladies et affections &nbsp;›&nbsp; Vérificateur de symptômes et de bien-être",
     "topbar": "🩺&nbsp; Vérificateur de symptômes et de bien-être",
+    "hero_explore_label": "Explorer cette appli",
     "footer": (
         "Conçu à des fins éducatives/hackathon. Consultez toujours un professionnel de santé "
         "ou de santé mentale agréé pour un véritable diagnostic et traitement."
@@ -787,6 +790,7 @@ UI_STRINGS["hi"] = {
     ),
     "breadcrumb": "होम &nbsp;›&nbsp; बीमारियाँ और स्थितियाँ &nbsp;›&nbsp; लक्षण और कल्याण जाँचकर्ता",
     "topbar": "🩺&nbsp; लक्षण और कल्याण जाँचकर्ता",
+    "hero_explore_label": "इस ऐप को देखें",
     "footer": (
         "शैक्षिक/हैकाथॉन उद्देश्यों के लिए बनाया गया। वास्तविक निदान और उपचार के लिए हमेशा एक लाइसेंस "
         "प्राप्त चिकित्सा या मानसिक स्वास्थ्य पेशेवर से सलाह लें।"

@@ -85,7 +85,7 @@ BADGE_COLORS = {
 st.markdown(
     f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&family=Merriweather:wght@700;900&display=swap');
 
     html, body, [class*="css"] {{
         font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -95,23 +95,6 @@ st.markdown(
         background: linear-gradient(180deg, #F5FAFF 0%, #FFFFFF 320px);
     }}
 
-    .mc-topbar {{
-        background: linear-gradient(90deg, #0B2D4D 0%, #0E3A66 55%, #0067B1 100%);
-        color: #FFFFFF;
-        margin: -1rem -1rem 0 -1rem;
-        padding: 0.9rem 1.5rem;
-        border-bottom: 3px solid #00C2FF;
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        box-shadow: 0 2px 18px rgba(0, 103, 177, 0.28);
-    }}
-    .mc-breadcrumb {{
-        margin: 0.75rem 0 0.25rem 0;
-        color: #5B6B79;
-        font-size: 0.85rem;
-    }}
 
     h1, h2, h3 {{ color: #0B2D4D !important; font-weight: 800 !important; }}
     h1 {{
@@ -144,8 +127,50 @@ st.markdown(
     }}
 
     section[data-testid="stSidebar"] {{
-        background-color: #F4F6F8;
-        border-right: 1px solid #E1E5E9;
+        background: linear-gradient(180deg, #0B2D4D 0%, #0E3A66 55%, #0067B1 100%) !important;
+        border-right: 3px solid #00C2FF;
+    }}
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        background: none !important;
+    }}
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] li,
+    section[data-testid="stSidebar"] strong,
+    section[data-testid="stSidebar"] small,
+    section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{
+        color: rgba(255,255,255,0.92) !important;
+    }}
+    section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] * {{
+        color: rgba(255,255,255,0.68) !important;
+    }}
+    section[data-testid="stSidebar"] hr {{
+        border-color: rgba(255,255,255,0.25) !important;
+    }}
+    /* Keep dropdown/select surfaces light so their own text stays legible */
+    section[data-testid="stSidebar"] div[data-baseweb="select"] > div {{
+        background-color: rgba(255,255,255,0.95) !important;
+        border: 1.5px solid rgba(255,255,255,0.55) !important;
+    }}
+    section[data-testid="stSidebar"] div[data-baseweb="select"] input,
+    section[data-testid="stSidebar"] div[data-baseweb="select"] span,
+    section[data-testid="stSidebar"] div[data-baseweb="select"] div {{
+        color: #0B2D4D !important;
+    }}
+    section[data-testid="stSidebar"] div[data-baseweb="tag"] span {{
+        color: #FFFFFF !important;
+    }}
+    section[data-testid="stSidebar"] [data-testid="stExpander"] {{
+        background-color: rgba(255,255,255,0.06) !important;
+        border-radius: 8px !important;
+    }}
+    section[data-testid="stSidebar"] [data-testid="stAlertContainer"] {{
+        background-color: rgba(255,255,255,0.12) !important;
     }}
 
     div[data-testid="stVerticalBlockBorderWrapper"] {{
@@ -192,8 +217,100 @@ st.markdown(
         font-weight: 600;
         padding: 0.6rem 1.2rem;
     }}
+
+    /* Hero banner ------------------------------------------------------- */
+    .mc-hero {{
+        background: linear-gradient(115deg, #061A2E 0%, #0B2D4D 35%, #0067B1 100%);
+        margin: -1rem -1rem 1.75rem -1rem;
+        padding: 2.5rem 2.5rem 2.25rem 2.5rem;
+        border-bottom: 4px solid #00C2FF;
+        box-shadow: 0 8px 28px rgba(6, 26, 46, 0.35);
+    }}
+    .mc-hero-grid {{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2.5rem;
+        align-items: flex-start;
+        justify-content: space-between;
+    }}
+    .mc-hero-breadcrumb {{
+        color: rgba(255,255,255,0.75);
+        font-size: 0.85rem;
+        margin-bottom: 1.1rem;
+    }}
+    .mc-hero-breadcrumb a {{ color: rgba(255,255,255,0.75) !important; text-decoration: none; }}
+    .mc-hero-title {{
+        font-family: 'Merriweather', Georgia, serif;
+        font-weight: 900;
+        font-size: 2.75rem;
+        line-height: 1.15;
+        color: #FFFFFF;
+        margin: 0 0 0.9rem 0;
+    }}
+    .mc-hero-subtitle {{
+        color: rgba(255,255,255,0.88);
+        font-size: 1.05rem;
+        max-width: 34rem;
+        margin: 0 0 1.6rem 0;
+    }}
+    .mc-hero-search {{
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #FFFFFF;
+        border-radius: 999px;
+        padding: 0.9rem 1.4rem;
+        max-width: 30rem;
+        font-size: 0.95rem;
+        color: #5B6B79;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    }}
+    .mc-hero-nav {{
+        min-width: 15rem;
+    }}
+    .mc-hero-nav-title {{
+        color: #FFFFFF;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 0.9rem;
+        opacity: 0.9;
+    }}
+    .mc-hero-circles {{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        max-width: 21rem;
+    }}
+    .mc-hero-circle {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        width: 4.6rem;
+    }}
+    .mc-hero-circle-badge {{
+        width: 3.1rem;
+        height: 3.1rem;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }}
+    .mc-hero-circle:hover .mc-hero-circle-badge {{
+        background: rgba(0, 194, 255, 0.35);
+        transform: translateY(-2px);
+    }}
+    .mc-hero-circle-label {{
+        color: rgba(255,255,255,0.85);
+        font-size: 0.72rem;
+        text-align: center;
+        line-height: 1.15;
+    }}
     </style>
-    <div class="mc-topbar">{i18n.t(lang, "topbar")}</div>
     """,
     unsafe_allow_html=True,
 )
@@ -226,12 +343,37 @@ def compute_matches(selected: list, diseases: dict) -> list:
 
 # ------------------------------------------------------------------ header ---
 
+_nav_tab_keys = ["tab_kids", "tab_checker", "tab_assistant", "tab_mental_health", "tab_upload", "tab_hospital"]
+_hero_circles_html = ""
+for _key in _nav_tab_keys:
+    _label = i18n.t(lang, _key)
+    _emoji, _, _rest = _label.partition(" ")
+    _hero_circles_html += (
+        f'<div class="mc-hero-circle">'
+        f'<div class="mc-hero-circle-badge">{_emoji}</div>'
+        f'<div class="mc-hero-circle-label">{_rest or _label}</div>'
+        f"</div>"
+    )
+
 st.markdown(
-    f'<div class="mc-breadcrumb">{i18n.t(lang, "breadcrumb")}</div>',
+    f"""
+    <div class="mc-hero">
+      <div class="mc-hero-breadcrumb">{i18n.t(lang, "breadcrumb")}</div>
+      <div class="mc-hero-grid">
+        <div>
+          <div class="mc-hero-title">{i18n.t(lang, "topbar")}</div>
+          <div class="mc-hero-subtitle">{i18n.t(lang, "app_caption")}</div>
+          <div class="mc-hero-search">{i18n.t(lang, "checker_multiselect_placeholder")}</div>
+        </div>
+        <div class="mc-hero-nav">
+          <div class="mc-hero-nav-title">{i18n.t(lang, "hero_explore_label")}</div>
+          <div class="mc-hero-circles">{_hero_circles_html}</div>
+        </div>
+      </div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
-st.title(i18n.t(lang, "topbar"))
-st.caption(i18n.t(lang, "app_caption"))
 
 # ------------------------------------------------------------------ sidebar ---
 
