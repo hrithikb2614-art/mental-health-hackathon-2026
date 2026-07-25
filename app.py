@@ -22,21 +22,12 @@ st.set_page_config(
     layout="wide",
 )
 
-if "sidebar_open" not in st.session_state:
-    st.session_state.sidebar_open = True
-
 # Visual style: Mayo-inspired navy/blue palette with a futuristic gradient/glow treatment.
 BADGE_COLORS = {
     "emergency": "#C8102E",
     "see_doctor": "#0067B1",
     "self_care": "#2E7D32",
 }
-
-sidebar_hide_css = (
-    'section[data-testid="stSidebar"] { display: none !important; }'
-    if not st.session_state.sidebar_open
-    else ""
-)
 
 st.markdown(
     f"""
@@ -103,7 +94,6 @@ st.markdown(
         background-color: #F4F6F8;
         border-right: 1px solid #E1E5E9;
     }}
-    {sidebar_hide_css}
 
     div[data-testid="stVerticalBlockBorderWrapper"] {{
         border-radius: 10px !important;
@@ -154,13 +144,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-menu_col, _ = st.columns([0.14, 0.86])
-with menu_col:
-    toggle_label = "☰ Hide menu" if st.session_state.sidebar_open else "☰ Show menu"
-    if st.button(toggle_label, key="sidebar_toggle"):
-        st.session_state.sidebar_open = not st.session_state.sidebar_open
-        st.rerun()
 
 # ---------------------------------------------------------------- scoring ---
 
