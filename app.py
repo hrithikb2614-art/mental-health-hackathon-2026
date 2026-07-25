@@ -2,17 +2,14 @@ import streamlit as st
 from streamlit_js_eval import get_geolocation
 
 import hospital_finder
+import i18n
 import rag
+import translate
 from health_data import (
     DISEASES,
     EMERGENCY_SYMPTOMS,
-    CRISIS_RESOURCES,
-    URGENCY_LABELS,
-    build_symptom_pool,
 )
 from kids_data import (
-    ANSWER_OPTIONS,
-    ANSWER_SCORES,
     KIDS_QUESTIONS,
     SAFETY_QUESTION,
     KIDS_THEMES,
@@ -24,6 +21,49 @@ st.set_page_config(
     page_icon="🩺",
     layout="wide",
 )
+
+# ------------------------------------------------------------- language ---
+
+lang = st.sidebar.selectbox(
+    i18n.t("en", "language_label"),
+    options=list(i18n.LANGUAGES.keys()),
+    format_func=lambda code: i18n.LANGUAGES[code],
+    key="app_language",
+)
+
+# Dynamically translated content (disease data, Kids Check-In text, symptom
+# vocabulary). None when English is selected, the AI Assistant isn't
+# configured, or translation failed — callers fall back to English.
+bundle = translate.get_bundle(lang, i18n.LANGUAGES[lang])
+show_translation_note = lang != "en" and bundle is None
+
+
+def translate_symptom(symptom: str) -> str:
+    return (bundle or {}).get("symptoms", {}).get(symptom, symptom)
+
+
+def localize_diseases(diseases: dict) -> dict:
+    translated = (bundle or {}).get("diseases", {})
+    localized = {}
+    for name, info in diseases.items():
+        info_t = translated.get(name, {})
+        localized[name] = dict(info)
+        localized[name]["display_name"] = info_t.get("name", name)
+        localized[name]["description"] = info_t.get("description", info["description"])
+        localized[name]["advice"] = info_t.get("advice", info["advice"])
+        if info.get("mayo_summary"):
+            localized[name]["mayo_summary"] = info_t.get("mayo_summary", info["mayo_summary"])
+        localized[name]["symptoms"] = [translate_symptom(s) for s in info["symptoms"]]
+    return localized
+
+
+def localized_symptom_pool(localized_diseases: dict) -> list:
+    pool = set()
+    for info in localized_diseases.values():
+        pool.update(info["symptoms"])
+    pool.update(translate_symptom(s) for s in EMERGENCY_SYMPTOMS)
+    return sorted(pool)
+
 
 # Visual style: Mayo-inspired navy/blue palette with a futuristic gradient/glow treatment.
 BADGE_COLORS = {
@@ -143,7 +183,7 @@ st.markdown(
         padding: 0.6rem 1.2rem;
     }}
     </style>
-    <div class="mc-topbar">🩺&nbsp; Symptom &amp; Wellness Checker</div>
+    <div class="mc-topbar">{i18n.t(lang, "topbar")}</div>
     """,
     unsafe_allow_html=True,
 )
@@ -177,95 +217,98 @@ def compute_matches(selected: list, diseases: dict) -> list:
 # ------------------------------------------------------------------ header ---
 
 st.markdown(
-    '<div class="mc-breadcrumb">Home &nbsp;›&nbsp; Diseases &amp; Conditions &nbsp;›&nbsp; Symptom &amp; Wellness Checker</div>',
+    f'<div class="mc-breadcrumb">{i18n.t(lang, "breadcrumb")}</div>',
     unsafe_allow_html=True,
 )
-st.title("🩺 Symptom & Wellness Checker")
-st.caption(
-    "A friendly check-in for kids & teens, plus a rule-based symptom-overlap tool for "
-    "physical and mental health. Neither is a diagnosis."
-)
+st.title(i18n.t(lang, "topbar"))
+st.caption(i18n.t(lang, "app_caption"))
 
 # ------------------------------------------------------------------ sidebar ---
 
-st.sidebar.header("Filters")
-st.sidebar.caption("Applies to the Symptom Checker tab.")
+st.sidebar.header(i18n.t(lang, "sidebar_filters_header"))
+st.sidebar.caption(i18n.t(lang, "sidebar_filters_caption"))
+category_labels = i18n.CATEGORY_LABELS.get(lang, i18n.CATEGORY_LABELS["en"])
 categories = st.sidebar.multiselect(
-    "Which areas do you want to check?",
+    i18n.t(lang, "sidebar_categories_label"),
     options=["Physical", "Mental"],
     default=["Physical", "Mental"],
+    format_func=lambda c: category_labels.get(c, c),
 )
 
 if not categories:
-    st.sidebar.info("Select at least one category to continue.")
+    st.sidebar.info(i18n.t(lang, "sidebar_select_category_warning"))
 
 filtered_diseases = {
     name: info for name, info in DISEASES.items() if info["category"] in categories
 }
 
-st.sidebar.header("About")
+st.sidebar.header(i18n.t(lang, "sidebar_about_header"))
 st.sidebar.markdown(
-    "This checker cross-references the symptoms you select against a curated "
-    f"list of **{len(DISEASES)} conditions** ({sum(1 for d in DISEASES.values() if d['category']=='Physical')} physical, "
-    f"{sum(1 for d in DISEASES.values() if d['category']=='Mental')} mental health) "
-    "and ranks them by how closely your symptoms match each condition's typical profile."
+    i18n.t(
+        lang,
+        "sidebar_about_text",
+        total=len(DISEASES),
+        physical=sum(1 for d in DISEASES.values() if d["category"] == "Physical"),
+        mental=sum(1 for d in DISEASES.values() if d["category"] == "Mental"),
+    )
 )
 
 # --------------------------------------------------------------------- tabs ---
 
 tab_kids, tab_checker, tab_assistant, tab_upload, tab_hospital = st.tabs(
     [
-        "🧒 Kids & Teens Check-In",
-        "🔍 Symptom Checker",
-        "🤖 AI Assistant",
-        "📄 Upload Documents",
-        "🏥 Find a Hospital",
+        i18n.t(lang, "tab_kids"),
+        i18n.t(lang, "tab_checker"),
+        i18n.t(lang, "tab_assistant"),
+        i18n.t(lang, "tab_upload"),
+        i18n.t(lang, "tab_hospital"),
     ]
 )
 
 # =========================================================== Tab 1: Kids ===
 
 with tab_kids:
-    st.subheader("A quick, friendly check-in")
-    st.caption(
-        "This isn't a test, a score, or a diagnosis — just a few questions to help you notice "
-        "how you've been feeling lately. Answer honestly. Nothing here is judged, and your "
-        "answers aren't saved anywhere."
-    )
+    st.subheader(i18n.t(lang, "kids_subheader"))
+    st.caption(i18n.t(lang, "kids_caption"))
+    if show_translation_note:
+        st.info(i18n.t(lang, "translation_fallback_note"))
+
+    kids_questions_t = (bundle or {}).get("kids_questions", {})
+    kids_themes_t = (bundle or {}).get("kids_themes", {})
+    answer_options = [
+        i18n.t(lang, "answer_not_really"),
+        i18n.t(lang, "answer_sometimes"),
+        i18n.t(lang, "answer_a_lot"),
+    ]
+    answer_scores = {option: score for score, option in enumerate(answer_options)}
 
     kids_answers = {}
     for q in KIDS_QUESTIONS:
         kids_answers[q["key"]] = st.radio(
-            q["prompt"],
-            ANSWER_OPTIONS,
+            kids_questions_t.get(q["key"], q["prompt"]),
+            answer_options,
             index=None,
             key=f"kids_{q['key']}",
             horizontal=True,
         )
 
     st.divider()
-    st.markdown(
-        "**One more question.** This one's just about keeping you safe — it's always okay "
-        "to answer honestly."
-    )
+    st.markdown(i18n.t(lang, "kids_one_more_question"))
     safety_answer = st.radio(
-        SAFETY_QUESTION["prompt"],
-        ANSWER_OPTIONS,
+        kids_questions_t.get("safety", SAFETY_QUESTION["prompt"]),
+        answer_options,
         index=None,
         key="kids_safety",
         horizontal=True,
     )
 
-    check_in = st.button("See what this might mean", type="primary", key="kids_submit")
+    check_in = st.button(i18n.t(lang, "kids_submit_button"), type="primary", key="kids_submit")
 
-    if safety_answer in ("Sometimes", "A lot"):
-        st.error("💙 Your safety matters most right now", icon="💙")
-        st.markdown(
-            "Thank you for being honest — that takes courage. Please tell a trusted adult "
-            "right away (a parent, relative, teacher, or school counselor), or reach out now:"
-        )
-        st.markdown("- **[988 Suicide & Crisis Lifeline](https://988lifeline.org/)**: Call or text 988 — free, confidential, 24/7.")
-        st.markdown("- **[Crisis Text Line](https://www.crisistextline.org/)**: Text HOME to 741741 — free, 24/7.")
+    if safety_answer in (answer_options[1], answer_options[2]):
+        st.error(i18n.t(lang, "kids_safety_alert_title"), icon="💙")
+        st.markdown(i18n.t(lang, "kids_safety_alert_body"))
+        st.markdown(f"- {i18n.t(lang, 'kids_988_line')}")
+        st.markdown(f"- {i18n.t(lang, 'kids_crisis_text_line')}")
         st.divider()
 
     if check_in or "kids_results_shown" in st.session_state:
@@ -273,92 +316,91 @@ with tab_kids:
             st.session_state["kids_results_shown"] = True
 
         answered = {k: v for k, v in kids_answers.items() if v is not None}
-        flagged_themes = [k for k, v in answered.items() if ANSWER_SCORES.get(v, 0) >= 1]
+        flagged_themes = [k for k, v in answered.items() if answer_scores.get(v, 0) >= 1]
 
-        st.markdown("#### What we noticed")
+        st.markdown(i18n.t(lang, "kids_what_we_noticed"))
         if not answered:
-            st.info("Answer a few questions above to see your check-in summary.")
+            st.info(i18n.t(lang, "kids_answer_prompt"))
         elif not flagged_themes:
-            st.success(
-                "Based on your answers, things sound fairly steady right now. That's great — "
-                "and it's always okay to check in with someone you trust if that changes."
-            )
+            st.success(i18n.t(lang, "kids_steady"))
         else:
             for key in flagged_themes:
                 theme = KIDS_THEMES[key]
+                theme_t = kids_themes_t.get(key, {})
                 with st.container(border=True):
-                    st.markdown(f"##### {theme['title']}")
-                    st.write(theme["blurb"])
-                    st.markdown(f"💡 {theme['tip']}")
-                    st.caption(f"Learn more: [{theme['resource_label']}]({theme['resource_url']})")
+                    st.markdown(f"##### {theme_t.get('title', theme['title'])}")
+                    st.write(theme_t.get("blurb", theme["blurb"]))
+                    st.markdown(f"💡 {theme_t.get('tip', theme['tip'])}")
+                    st.caption(
+                        f"{i18n.t(lang, 'kids_learn_more')}: "
+                        f"[{theme['resource_label']}]({theme['resource_url']})"
+                    )
 
         st.divider()
-        st.markdown("#### Resources for you")
-        for label, detail, url in KIDS_RESOURCES:
-            st.markdown(f"- **[{label}]({url})**: {detail}")
+        st.markdown(i18n.t(lang, "kids_resources_header"))
+        resource_details = i18n.KIDS_RESOURCE_DETAILS_I18N.get(lang, i18n.KIDS_RESOURCE_DETAILS_I18N["en"])
+        for (label, _detail, url), localized_detail in zip(KIDS_RESOURCES, resource_details):
+            st.markdown(f"- **[{label}]({url})**: {localized_detail}")
 
-        st.caption(
-            "This check-in is not a diagnosis and doesn't replace talking to a real person. "
-            "A parent, relative, teacher, school counselor, or doctor can help you figure out "
-            "what to do next."
-        )
+        st.caption(i18n.t(lang, "kids_footer_note"))
 
 # ==================================================== Tab 2: Symptom Checker ===
 
 with tab_checker:
-    with st.expander("⚠️ Important disclaimer — please read", expanded=False):
-        st.warning(
-            "This tool is for **educational purposes only** and does not provide medical "
-            "or mental health advice, diagnosis, or treatment. It uses simple symptom "
-            "matching, not a clinical or AI model. Always consult a qualified doctor or "
-            "mental health professional for any health concern. If you believe you are "
-            "having a medical or mental health emergency, contact your local emergency "
-            "services immediately."
-        )
+    with st.expander(i18n.t(lang, "checker_disclaimer_title"), expanded=False):
+        st.warning(i18n.t(lang, "checker_disclaimer_body"))
+    if show_translation_note:
+        st.info(i18n.t(lang, "translation_fallback_note"))
 
-    st.subheader("1. Select your symptoms")
+    st.subheader(i18n.t(lang, "checker_step1"))
 
-    symptom_pool = build_symptom_pool(filtered_diseases) if filtered_diseases else []
+    localized_filtered_diseases = localize_diseases(filtered_diseases) if filtered_diseases else {}
+    symptom_pool = localized_symptom_pool(localized_filtered_diseases) if localized_filtered_diseases else []
 
     selected_symptoms = st.multiselect(
-        "Start typing to search, or scroll to browse. Select as many as apply.",
+        i18n.t(lang, "checker_multiselect_label"),
         options=symptom_pool,
-        placeholder="🔍  e.g. persistent sadness, headache, shortness of breath...",
+        placeholder=i18n.t(lang, "checker_multiselect_placeholder"),
     )
 
-    analyze = st.button("Analyze symptoms", type="primary", disabled=not selected_symptoms)
+    analyze = st.button(i18n.t(lang, "checker_analyze_button"), type="primary", disabled=not selected_symptoms)
 
-    active_emergencies = [s for s in selected_symptoms if s in EMERGENCY_SYMPTOMS]
+    emergency_label_to_canonical = {translate_symptom(canon): canon for canon in EMERGENCY_SYMPTOMS}
+    localized_emergency_messages = i18n.EMERGENCY_MESSAGES_I18N.get(lang, i18n.EMERGENCY_MESSAGES_I18N["en"])
+    active_emergencies = [
+        emergency_label_to_canonical[s] for s in selected_symptoms if s in emergency_label_to_canonical
+    ]
     if active_emergencies:
-        st.error("### 🚨 This may be a medical emergency", icon="🚨")
-        for s in active_emergencies:
-            st.error(EMERGENCY_SYMPTOMS[s])
-        st.markdown("**Please seek immediate help. Crisis and emergency resources:**")
-        for label, detail in CRISIS_RESOURCES:
+        st.error(i18n.t(lang, "checker_emergency_title"), icon="🚨")
+        for canon in active_emergencies:
+            st.error(localized_emergency_messages.get(canon, EMERGENCY_SYMPTOMS[canon]))
+        st.markdown(i18n.t(lang, "checker_emergency_seek_help"))
+        for label, detail in i18n.CRISIS_RESOURCES_I18N.get(lang, i18n.CRISIS_RESOURCES_I18N["en"]):
             st.markdown(f"- **{label}**: {detail}")
         st.divider()
 
-    st.subheader("2. Possible matches")
+    st.subheader(i18n.t(lang, "checker_step2"))
 
     if not selected_symptoms:
-        st.info("Select one or more symptoms above, then click **Analyze symptoms**.")
+        st.info(i18n.t(lang, "checker_select_prompt"))
     elif analyze or "last_results" in st.session_state:
         if analyze:
-            st.session_state["last_results"] = compute_matches(selected_symptoms, filtered_diseases)
+            st.session_state["last_results"] = compute_matches(selected_symptoms, localized_filtered_diseases)
         results = st.session_state["last_results"]
 
         if not results:
-            st.warning("No matching conditions found for the selected symptoms in this reference set.")
+            st.warning(i18n.t(lang, "checker_no_matches"))
         else:
+            urgency_labels = i18n.URGENCY_LABELS_I18N.get(lang, i18n.URGENCY_LABELS_I18N["en"])
             top_results = results[:6]
             for r in top_results:
                 info = r["info"]
-                urgency_text, _ = URGENCY_LABELS.get(info["urgency"], ("", "gray"))
+                urgency_text = urgency_labels.get(info["urgency"], "")
                 with st.container(border=True):
                     col1, col2 = st.columns([3, 1])
                     with col1:
-                        st.markdown(f"#### {r['name']}")
-                        st.caption(f"Category: {info['category']}")
+                        st.markdown(f"#### {info.get('display_name', r['name'])}")
+                        st.caption(i18n.t(lang, "checker_category_label", category=category_labels.get(info["category"], info["category"])))
                     with col2:
                         badge_color = BADGE_COLORS.get(info["urgency"], "#5B6B79")
                         st.markdown(
@@ -366,44 +408,32 @@ with tab_checker:
                             unsafe_allow_html=True,
                         )
 
-                    st.progress(min(r["score"], 1.0), text=f"Match score: {r['score']*100:.0f}%")
+                    st.progress(min(r["score"], 1.0), text=i18n.t(lang, "checker_match_score", pct=f"{r['score']*100:.0f}"))
 
                     st.write(info["description"])
-                    st.markdown(f"✅ **Matched symptoms:** {', '.join(r['matched'])}")
+                    st.markdown(i18n.t(lang, "checker_matched_symptoms", symptoms=", ".join(r["matched"])))
                     if r["missing"]:
-                        st.markdown(f"ℹ️ **Other typical symptoms not selected:** {', '.join(r['missing'])}")
-                    st.markdown(f"**Suggested next step:** {info['advice']}")
+                        st.markdown(i18n.t(lang, "checker_missing_symptoms", symptoms=", ".join(r["missing"])))
+                    st.markdown(i18n.t(lang, "checker_suggested_next_step", advice=info["advice"]))
                     if info.get("mayo_summary"):
-                        with st.expander("📖 AI summary from Mayo Clinic"):
+                        with st.expander(i18n.t(lang, "checker_mayo_expander")):
                             st.write(info["mayo_summary"])
                             if info.get("mayo_url"):
-                                st.caption(f"Source: [Mayo Clinic]({info['mayo_url']})")
+                                st.caption(i18n.t(lang, "checker_mayo_source", url=info["mayo_url"]))
 
             st.divider()
-            st.caption(
-                "Results are ranked by symptom overlap only and may include conditions "
-                "that are not relevant to you. This is not a diagnosis — please consult "
-                "a healthcare professional to confirm any condition."
-            )
+            st.caption(i18n.t(lang, "checker_footer_note"))
 
 # ===================================================== Tab 3: AI Assistant ===
 
 with tab_assistant:
-    st.subheader("Ask a question")
-    st.caption(
-        "A healthcare-savvy AI assistant grounded in this app's own condition data — plus "
-        "anything extra loaded into the knowledge base (see the Upload Documents tab) — and "
-        "backed by general medical/mental-health knowledge for anything else. This is not a "
-        "diagnosis and does not replace a real conversation with a qualified professional."
-    )
+    st.subheader(i18n.t(lang, "assistant_subheader"))
+    st.caption(i18n.t(lang, "assistant_caption"))
 
     if not rag.is_configured():
-        st.warning(
-            "The AI Assistant isn't set up yet. Add `ANTHROPIC_API_KEY` to "
-            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
-        )
+        st.warning(i18n.t(lang, "assistant_not_configured"))
     else:
-        with st.spinner("Preparing knowledge base..."):
+        with st.spinner(i18n.t(lang, "assistant_preparing_kb")):
             rag.ensure_default_knowledge_base_seeded()
 
         if "assistant_history" not in st.session_state:
@@ -413,7 +443,7 @@ with tab_assistant:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-        question = st.chat_input("Ask a health question...")
+        question = st.chat_input(i18n.t(lang, "assistant_chat_placeholder"))
         if question:
             st.session_state.assistant_history.append({"role": "user", "content": question})
             with st.chat_message("user"):
@@ -421,18 +451,14 @@ with tab_assistant:
 
             with st.chat_message("assistant"):
                 if rag.contains_crisis_language(question):
-                    st.error("💙 Your safety matters most right now", icon="💙")
-                    for label, detail in CRISIS_RESOURCES:
+                    st.error(i18n.t(lang, "kids_safety_alert_title"), icon="💙")
+                    for label, detail in i18n.CRISIS_RESOURCES_I18N.get(lang, i18n.CRISIS_RESOURCES_I18N["en"]):
                         st.markdown(f"- **{label}**: {detail}")
-                    answer = (
-                        "I noticed your question may involve thoughts of self-harm or crisis. "
-                        "Please reach out to the resources above right away — a real person "
-                        "can help in a way I can't."
-                    )
+                    answer = i18n.t(lang, "assistant_crisis_answer")
                     st.markdown(answer)
                 else:
                     try:
-                        with st.spinner("Thinking..."):
+                        with st.spinner(i18n.t(lang, "assistant_thinking")):
                             try:
                                 matches = rag.search_similar(question)
                             except Exception:
@@ -440,87 +466,75 @@ with tab_assistant:
                                 # model's own general knowledge if it fails.
                                 matches = []
                             history = st.session_state.assistant_history[:-1]
-                            answer = rag.generate_answer(question, matches, history=history)
+                            answer = rag.generate_answer(
+                                question, matches, history=history, language=i18n.LANGUAGES[lang]
+                            )
                     except Exception as exc:
                         matches = []
-                        answer = f"Something went wrong answering that: {exc}"
+                        answer = i18n.t(lang, "assistant_error_prefix", error=exc)
                     st.markdown(answer)
                     if matches:
                         sources = sorted({m["source"] for m in matches})
-                        st.caption(f"Sources: {', '.join(sources)}")
+                        st.caption(i18n.t(lang, "assistant_sources_prefix", sources=", ".join(sources)))
 
             st.session_state.assistant_history.append({"role": "assistant", "content": answer})
 
 # =================================================== Tab 4: Upload Documents ===
 
 with tab_upload:
-    st.subheader("Load a document into the knowledge base")
-    st.caption(
-        "Documents uploaded here are shared with every visitor's AI Assistant — "
-        "they're added to a knowledge base, not kept private to your session."
-    )
+    st.subheader(i18n.t(lang, "upload_subheader"))
+    st.caption(i18n.t(lang, "upload_caption"))
 
     if not rag.is_configured():
-        st.warning(
-            "Document upload isn't set up yet. Add `ANTHROPIC_API_KEY` to "
-            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
-        )
+        st.warning(i18n.t(lang, "upload_not_configured"))
     else:
         stats = rag.store_stats()
-        st.caption(
-            f"Knowledge base currently has **{stats['chunks']}** chunks from "
-            f"**{stats['documents']}** document(s)."
-        )
+        st.caption(i18n.t(lang, "upload_kb_stats", chunks=stats["chunks"], documents=stats["documents"]))
 
         admin_password = rag.get_secret("ADMIN_PASSWORD")
         if not admin_password:
-            st.info("Set `ADMIN_PASSWORD` in secrets to enable document uploads.")
+            st.info(i18n.t(lang, "upload_set_password"))
         else:
             entered_password = st.text_input(
-                "Admin password", type="password", key="admin_password_input"
+                i18n.t(lang, "upload_password_label"), type="password", key="admin_password_input"
             )
             if entered_password == admin_password:
                 uploaded_files = st.file_uploader(
-                    "Upload .txt, .md, or .pdf files",
+                    i18n.t(lang, "upload_file_uploader_label"),
                     type=["txt", "md", "pdf"],
                     accept_multiple_files=True,
                     key="doc_uploader",
                 )
-                if uploaded_files and st.button("Add to knowledge base", key="add_docs"):
+                if uploaded_files and st.button(i18n.t(lang, "upload_add_button"), key="add_docs"):
                     for uploaded_file in uploaded_files:
-                        with st.spinner(f"Processing {uploaded_file.name}..."):
+                        with st.spinner(i18n.t(lang, "upload_processing", filename=uploaded_file.name)):
                             try:
                                 text = rag.extract_text(uploaded_file)
                                 chunk_count = rag.upsert_document(uploaded_file.name, text)
                             except Exception as exc:
-                                st.error(f"Couldn't add {uploaded_file.name}: {exc}")
+                                st.error(i18n.t(lang, "upload_error", filename=uploaded_file.name, error=exc))
                             else:
-                                st.success(f"Added {uploaded_file.name} ({chunk_count} chunks).")
+                                st.success(i18n.t(lang, "upload_success", filename=uploaded_file.name, count=chunk_count))
             elif entered_password:
-                st.error("Incorrect password.")
+                st.error(i18n.t(lang, "upload_incorrect_password"))
 
 # ==================================================== Tab 5: Find a Hospital ===
 
 with tab_hospital:
-    st.subheader("Find a nearby hospital")
-    st.caption(
-        "Click \"Use my location\" or enter a city/address to see nearby hospitals on a "
-        "free map, using OpenStreetMap data — no account or API key needed. **If this is "
-        "a real emergency, call your local emergency number (e.g. 911/112/999) instead of "
-        "waiting on this page.**"
-    )
+    st.subheader(i18n.t(lang, "hospital_subheader"))
+    st.caption(i18n.t(lang, "hospital_caption"))
 
     col1, col2 = st.columns([1, 2])
     with col1:
-        use_location = st.button("📍 Use my location", type="primary")
+        use_location = st.button(i18n.t(lang, "hospital_use_location_button"), type="primary")
     with col2:
         manual_location = st.text_input(
-            "Or enter a city, address, or zip code",
-            placeholder="e.g. Boston, MA",
+            i18n.t(lang, "hospital_manual_location_label"),
+            placeholder=i18n.t(lang, "hospital_manual_location_placeholder"),
         )
-        manual_search = st.button("Search this location")
+        manual_search = st.button(i18n.t(lang, "hospital_search_button"))
 
-    radius_km = st.slider("Search radius (km)", min_value=2, max_value=50, value=10, step=1)
+    radius_km = st.slider(i18n.t(lang, "hospital_radius_label"), min_value=2, max_value=50, value=10, step=1)
 
     origin = None
     origin_label = None
@@ -528,59 +542,50 @@ with tab_hospital:
     if use_location:
         attempt = st.session_state.get("geo_attempt", 0) + 1
         st.session_state["geo_attempt"] = attempt
-        with st.spinner("Getting your location..."):
+        with st.spinner(i18n.t(lang, "hospital_getting_location")):
             location = get_geolocation(component_key=f"geo_{attempt}")
 
         if location and location.get("coords"):
             origin = (location["coords"]["latitude"], location["coords"]["longitude"])
-            origin_label = "your current location"
+            origin_label = i18n.t(lang, "hospital_your_location_label")
         elif location and location.get("error"):
-            st.error(
-                f"Couldn't get your location ({location['error']['message']}). "
-                "Allow location access in your browser, or search by address instead."
-            )
+            st.error(i18n.t(lang, "hospital_geo_error", error=location["error"]["message"]))
 
     if manual_search and manual_location:
         geocode_failed = False
-        with st.spinner("Looking up that location..."):
+        with st.spinner(i18n.t(lang, "hospital_looking_up")):
             try:
                 geocoded = hospital_finder.geocode_location(manual_location)
             except Exception:
                 geocoded = None
                 geocode_failed = True
-                st.error(
-                    "Couldn't reach the location service. Check your internet connection "
-                    "and try again."
-                )
+                st.error(i18n.t(lang, "hospital_geocode_service_error"))
         if geocoded is not None:
             lat, lon, display_name = geocoded
             origin = (lat, lon)
             origin_label = display_name
         elif not geocode_failed:
-            st.warning("Couldn't find that location. Try a more specific address or city.")
+            st.warning(i18n.t(lang, "hospital_not_found"))
 
     if origin is not None:
         lat, lon = origin
         st.session_state["hospital_origin"] = (lat, lon, origin_label)
-        with st.spinner("Searching for nearby hospitals..."):
+        with st.spinner(i18n.t(lang, "hospital_searching")):
             try:
                 st.session_state["hospital_results"] = hospital_finder.find_nearby_hospitals(
                     lat, lon, radius_km=radius_km
                 )
             except Exception:
                 st.session_state["hospital_results"] = []
-                st.error(
-                    "Couldn't reach the hospital search service. Check your internet "
-                    "connection and try again."
-                )
+                st.error(i18n.t(lang, "hospital_search_service_error"))
 
     if "hospital_origin" in st.session_state:
         lat, lon, display_name = st.session_state["hospital_origin"]
         hospitals = st.session_state.get("hospital_results", [])
-        st.caption(f"📍 Showing results near **{display_name}**")
+        st.caption(i18n.t(lang, "hospital_showing_results", location=display_name))
 
         if not hospitals:
-            st.info("No hospitals found in this radius. Try increasing the search radius.")
+            st.info(i18n.t(lang, "hospital_no_results"))
         else:
             map_points = [{"lat": lat, "lon": lon, "color": "#0067B1", "size": 120}]
             map_points += [
@@ -596,17 +601,14 @@ with tab_hospital:
                         if h["address"]:
                             st.caption(h["address"])
                     with col_b:
-                        st.markdown(f"**{h['distance_km']:.1f} km away**")
+                        st.markdown(i18n.t(lang, "hospital_distance_away", distance=f"{h['distance_km']:.1f}"))
                     if h["emergency"]:
-                        st.markdown("🚨 **Has an emergency department**")
+                        st.markdown(i18n.t(lang, "hospital_has_er"))
                     if h["phone"]:
                         st.markdown(f"📞 {h['phone']}")
-                    st.markdown(f"[Get directions ↗]({h['directions_url']})")
+                    st.markdown(i18n.t(lang, "hospital_get_directions", url=h["directions_url"]))
     else:
-        st.info("Click **Use my location** or search an address to see nearby hospitals.")
+        st.info(i18n.t(lang, "hospital_prompt"))
 
 st.divider()
-st.caption(
-    "Built for educational/hackathon purposes. Always consult a licensed medical "
-    "or mental health professional for real diagnosis and treatment."
-)
+st.caption(i18n.t(lang, "footer"))

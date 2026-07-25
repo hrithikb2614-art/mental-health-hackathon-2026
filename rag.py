@@ -234,7 +234,7 @@ def search_similar(query: str, match_count: int = 5) -> list:
     ]
 
 
-def generate_answer(question: str, matches: list, history: list = None) -> str:
+def generate_answer(question: str, matches: list, history: list = None, language: str = None) -> str:
     client = get_anthropic_client()
     if matches:
         context = "\n\n".join(
@@ -254,10 +254,14 @@ def generate_answer(question: str, matches: list, history: list = None) -> str:
         }
     )
 
+    system_prompt = SYSTEM_PROMPT
+    if language and language != "English":
+        system_prompt += f" Respond in {language}, regardless of what language the reference excerpts are in."
+
     response = client.messages.create(
         model=CHAT_MODEL,
         max_tokens=CHAT_MAX_TOKENS,
-        system=SYSTEM_PROMPT,
+        system=system_prompt,
         messages=messages,
     )
     # Some models emit a thinking block ahead of the text block, so pick out

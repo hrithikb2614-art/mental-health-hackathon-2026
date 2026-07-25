@@ -13,7 +13,8 @@ mental health emergency, contact your local emergency services immediately.
 
 ## Features
 
-The app has five tabs:
+The app has five tabs, and a sidebar language picker (English, Spanish,
+French, Hindi — see [Languages](#languages) below):
 
 1. **Kids & Teens Check-In** — a supportive, non-diagnostic self-reflection
    survey for young people. Surfaces gentle themes instead of condition
@@ -82,3 +83,31 @@ Each condition in `health_data.py` has a list of typical symptoms. When you
 select your symptoms, the app scores every condition by how much its symptom
 list overlaps with your selection (weighted toward recall — how much of the
 condition's typical profile you match) and shows the top matches.
+
+## Languages
+
+A language picker in the sidebar (🌐) supports English, Spanish, French, and
+Hindi:
+
+- All UI chrome, navigation, and safety-critical text (crisis hotlines,
+  emergency messages, urgency labels) is hand-translated in `i18n.py` and
+  always available with no setup.
+- The larger dynamic content — the 32 condition descriptions, the symptom
+  vocabulary, and the Kids Check-In questions/themes — is translated on
+  first use via the configured AI Assistant (`translate.py`) and cached to
+  disk per language (`data/translations/{lang}.json`, gitignored), so each
+  language is only translated once. Symptom matching in the Symptom Checker
+  still works correctly in any language, since the translated symptom
+  labels are substituted consistently everywhere they appear.
+- Without `ANTHROPIC_API_KEY` configured, switching languages still
+  translates the UI chrome, but the Symptom Checker and Kids Check-In
+  content show a note and fall back to English.
+- The AI Assistant tab answers in whichever language is selected — no
+  extra setup, it just tells Claude which language to reply in.
+
+Adding another language is a one-line change: add its code and name to
+`LANGUAGES` in `i18n.py`, then add hand-translated entries to the other
+dicts in that file (`CATEGORY_LABELS`, `URGENCY_LABELS_I18N`,
+`EMERGENCY_MESSAGES_I18N`, `CRISIS_RESOURCES_I18N`, `UI_STRINGS`,
+`KIDS_RESOURCE_DETAILS_I18N`) — the dynamic content translates itself
+automatically the first time that language is used.
