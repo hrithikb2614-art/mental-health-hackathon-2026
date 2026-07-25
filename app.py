@@ -14,6 +14,82 @@ st.set_page_config(
     layout="wide",
 )
 
+# Visual style inspired by mayoclinic.org/diseases-conditions: navy/blue palette,
+# clean sans-serif type, top bar + breadcrumb, pill-style badges.
+BADGE_COLORS = {
+    "emergency": "#C8102E",
+    "see_doctor": "#0067B1",
+    "self_care": "#2E7D32",
+}
+
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    }
+
+    .mc-topbar {
+        background-color: #0B2D4D;
+        color: #FFFFFF;
+        margin: -1rem -1rem 0 -1rem;
+        padding: 0.85rem 1.5rem;
+        border-bottom: 4px solid #0067B1;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+    .mc-breadcrumb {
+        margin: 0.75rem 0 0.25rem 0;
+        color: #5B6B79;
+        font-size: 0.85rem;
+    }
+
+    h1, h2, h3 { color: #0B2D4D !important; font-weight: 700 !important; }
+    a, a:visited { color: #0067B1; }
+
+    .stButton > button {
+        background-color: #0067B1;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        padding: 0.5rem 1.4rem;
+    }
+    .stButton > button:hover { background-color: #00517F; color: #FFFFFF; }
+    .stButton > button:disabled { background-color: #C7D3DB; color: #FFFFFF; }
+
+    section[data-testid="stSidebar"] {
+        background-color: #F4F6F8;
+        border-right: 1px solid #E1E5E9;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 6px !important;
+        border: 1px solid #E1E5E9 !important;
+        box-shadow: 0 1px 3px rgba(11, 45, 77, 0.06);
+    }
+
+    .stProgress > div > div > div > div { background-color: #0067B1; }
+
+    .mc-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #FFFFFF;
+    }
+    </style>
+    <div class="mc-topbar">🩺 Symptom Checker</div>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ---------------------------------------------------------------- scoring ---
 
 def compute_matches(selected: list, diseases: dict) -> list:
@@ -42,6 +118,10 @@ def compute_matches(selected: list, diseases: dict) -> list:
 
 # ------------------------------------------------------------------ header ---
 
+st.markdown(
+    '<div class="mc-breadcrumb">Home &nbsp;›&nbsp; Diseases &amp; Conditions &nbsp;›&nbsp; Symptom Checker</div>',
+    unsafe_allow_html=True,
+)
 st.title("🩺 Symptom Checker — Physical & Mental Health")
 st.caption(
     "A rule-based tool that suggests possible conditions from symptom overlap. "
@@ -125,14 +205,18 @@ elif analyze or "last_results" in st.session_state:
         top_results = results[:6]
         for r in top_results:
             info = r["info"]
-            urgency_text, urgency_color = URGENCY_LABELS.get(info["urgency"], ("", "gray"))
+            urgency_text, _ = URGENCY_LABELS.get(info["urgency"], ("", "gray"))
             with st.container(border=True):
                 col1, col2 = st.columns([3, 1])
                 with col1:
                     st.markdown(f"#### {r['name']}")
                     st.caption(f"Category: {info['category']}")
                 with col2:
-                    st.markdown(f":{urgency_color}[**{urgency_text}**]")
+                    badge_color = BADGE_COLORS.get(info["urgency"], "#5B6B79")
+                    st.markdown(
+                        f'<span class="mc-badge" style="background-color:{badge_color};">{urgency_text}</span>',
+                        unsafe_allow_html=True,
+                    )
 
                 st.progress(min(r["score"], 1.0), text=f"Match score: {r['score']*100:.0f}%")
 
