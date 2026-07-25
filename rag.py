@@ -1,7 +1,10 @@
 """Retrieval-augmented generation over documents stored in a local JSON file.
 
 Requires one secret (see .streamlit/secrets.toml.example):
-- OPENAI_API_KEY: used for both embeddings (text-embedding-3-small) and chat answers
+- ANTHROPIC_API_KEY: used for chat answers (Claude)
+
+Embeddings are generated locally with a sentence-transformers model, so no
+second API key or account is needed for document search.
 
 No external account or database setup needed. Document uploads are
 admin-curated: parsed, chunked, and embedded content is saved to a local
@@ -16,8 +19,9 @@ from pathlib import Path
 import numpy as np
 import streamlit as st
 
-EMBEDDING_MODEL = "text-embedding-3-small"
-CHAT_MODEL = "gpt-4o-mini"
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+CHAT_MODEL = "claude-sonnet-5"
+CHAT_MAX_TOKENS = 1024
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
 
@@ -57,11 +61,11 @@ def _has_secret(key: str) -> bool:
 
 
 def is_configured() -> bool:
-    return _has_secret("OPENAI_API_KEY")
+    return _has_secret("ANTHROPIC_API_KEY")
 
 
 def missing_secrets() -> list:
-    return [] if _has_secret("OPENAI_API_KEY") else ["OPENAI_API_KEY"]
+    return [] if _has_secret("ANTHROPIC_API_KEY") else ["ANTHROPIC_API_KEY"]
 
 
 def get_secret(key: str, default=None):
@@ -72,10 +76,17 @@ def get_secret(key: str, default=None):
 
 
 @st.cache_resource
-def get_openai_client():
-    from openai import OpenAI
+def get_anthropic_client():
+    from anthropic import Anthropic
 
-    return OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    return Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
+
+
+@st.cache_resource
+def get_embedding_model():
+    from sentence_transformers import SentenceTransformer
+
+    return SentenceTransformer(EMBEDDING_MODEL)
 
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list:
@@ -106,9 +117,9 @@ def extract_text(uploaded_file) -> str:
 
 
 def embed_texts(texts: list) -> list:
-    client = get_openai_client()
-    response = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
-    return [item.embedding for item in response.data]
+    model = get_embedding_model()
+    embeddings = model.encode(texts, normalize_embeddings=True)
+    return embeddings.tolist()
 
 
 def _load_store() -> list:
@@ -173,7 +184,7 @@ def search_similar(query: str, match_count: int = 5) -> list:
 
 
 def generate_answer(question: str, matches: list) -> str:
-    client = get_openai_client()
+    client = get_anthropic_client()
     if matches:
         context = "\n\n".join(
             f"[Source: {m['source']}]\n{m['content']}" for m in matches
@@ -181,10 +192,11 @@ def generate_answer(question: str, matches: list) -> str:
     else:
         context = "(No matching reference excerpts were found in the knowledge base.)"
 
-    response = client.chat.completions.create(
+    response = client.messages.create(
         model=CHAT_MODEL,
+        max_tokens=CHAT_MAX_TOKENS,
+        system=SYSTEM_PROMPT,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
                 "content": f"Reference excerpts:\n{context}\n\nQuestion: {question}",
@@ -192,4 +204,4 @@ def generate_answer(question: str, matches: list) -> str:
         ],
         temperature=0.3,
     )
-    return response.choices[0].message.content
+    return response.content[0].text

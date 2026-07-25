@@ -46,11 +46,12 @@ AI Assistant and Upload Documents tabs need the setup below.
 
 The AI Assistant stores document embeddings in a local file
 (`data/knowledge_base.json`, gitignored) — no external database or account
-needed. It uses OpenAI for embeddings and chat answers.
+needed. It uses Claude (Anthropic) for chat answers and a local
+sentence-transformers model for embeddings, so only one API key is needed.
 
 1. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`
    (already gitignored) and fill in:
-   - `OPENAI_API_KEY` — an OpenAI API key
+   - `ANTHROPIC_API_KEY` — an Anthropic API key
    - `ADMIN_PASSWORD` — a password of your choosing; required to use the
      Upload Documents tab, since uploaded documents are shared with every
      visitor's AI Assistant
@@ -58,10 +59,13 @@ needed. It uses OpenAI for embeddings and chat answers.
    `.txt`, `.md`, or `.pdf` files to the knowledge base, then ask questions
    in the AI Assistant tab.
 
-Without `OPENAI_API_KEY` configured, the AI Assistant and Upload Documents
-tabs show a setup message and the rest of the app works normally. Note that
-the knowledge base lives on local disk, so it persists only for the
-lifetime of the running app process — redeploying resets it.
+Without `ANTHROPIC_API_KEY` configured, the AI Assistant and Upload
+Documents tabs show a setup message and the rest of the app works normally.
+Two notes:
+- The knowledge base lives on local disk, so it persists only for the
+  lifetime of the running app process — redeploying resets it.
+- The first embedding call downloads the local model (~90MB) if it isn't
+  already cached, so the first upload or question may take longer.
 
 ## How it works
 

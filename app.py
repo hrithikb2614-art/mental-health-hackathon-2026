@@ -396,7 +396,7 @@ with tab_assistant:
 
     if not rag.is_configured():
         st.warning(
-            "The AI Assistant isn't set up yet. Add `OPENAI_API_KEY` to "
+            "The AI Assistant isn't set up yet. Add `ANTHROPIC_API_KEY` to "
             "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
         )
     else:
@@ -450,7 +450,7 @@ with tab_upload:
 
     if not rag.is_configured():
         st.warning(
-            "Document upload isn't set up yet. Add `OPENAI_API_KEY` to "
+            "Document upload isn't set up yet. Add `ANTHROPIC_API_KEY` to "
             "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
         )
     else:
