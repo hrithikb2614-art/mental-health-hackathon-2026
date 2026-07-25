@@ -26,11 +26,10 @@ The app has three tabs:
    matched/missing symptoms, suggested next steps, a Mayo Clinic summary per
    condition, and an automatic safety banner with crisis hotline info if
    emergency symptoms are selected.
-3. **Find a Hospital** — enter a city, address, or zip code to see nearby
-   hospitals on a map and a distance-sorted list with addresses, phone
-   numbers, and one-tap directions. Uses OpenStreetMap's free Nominatim
-   (geocoding) and Overpass (place search) APIs — no API key or account
-   needed, but it does require outbound internet access at runtime.
+3. **Find a Hospital** — click "Use my location" (uses your browser's
+   geolocation) or type a city/address/zip, and see a live Google Map
+   centered there with nearby hospitals as pins. Needs a Google Maps API
+   key (see setup below).
 
 ## Running locally
 
@@ -39,9 +38,32 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-No API keys or setup are required — every tab works out of the box, as
-long as the machine running it has normal internet access (needed only by
-the Find a Hospital tab, to reach OpenStreetMap).
+The Kids Check-In and Symptom Checker tabs work with no further setup. The
+Find a Hospital tab needs the Google Maps setup below.
+
+## Find a Hospital setup
+
+The map is powered by Google's Maps Embed API, and "Use my location" uses
+your browser's built-in geolocation — neither needs any account of yours
+beyond a Google Cloud API key.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a
+   project (or reuse one), enable the **Maps Embed API**, and create an API
+   key. Restrict the key (HTTP referrers) to the domain(s) you deploy this
+   app to — Maps API keys are used client-side and are visible in the page,
+   so restriction is what keeps them safe, not secrecy.
+2. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`
+   (already gitignored) and set:
+   - `GOOGLE_MAPS_API_KEY` — the API key from step 1
+3. Restart the app.
+
+The Maps Embed API itself is free with no query limit, but the Cloud
+project still needs billing enabled to issue API keys. Without
+`GOOGLE_MAPS_API_KEY` configured, the Find a Hospital tab shows a setup
+message and the rest of the app works normally.
+
+Browser geolocation requires a secure context (HTTPS, or `localhost` during
+local development) and the user granting permission when prompted.
 
 ## How it works
 

@@ -1,4 +1,8 @@
+import urllib.parse
+
 import streamlit as st
+import streamlit.components.v1 as components
+from streamlit_js_eval import get_geolocation
 
 from health_data import (
     DISEASES,
@@ -15,7 +19,6 @@ from kids_data import (
     KIDS_THEMES,
     KIDS_RESOURCES,
 )
-import hospital_finder
 
 st.set_page_config(
     page_title="Symptom Checker — Physical & Mental Health",
@@ -387,79 +390,73 @@ with tab_checker:
 with tab_hospital:
     st.subheader("Find a nearby hospital")
     st.caption(
-        "Enter a city, address, or zip code to see nearby hospitals on a map, using free "
-        "OpenStreetMap data — no account or API key needed. **If this is a real emergency, "
-        "call your local emergency number (e.g. 911/112/999) instead of waiting on this page.**"
+        "Uses your device's location and Google Maps to show nearby hospitals. "
+        "**If this is a real emergency, call your local emergency number "
+        "(e.g. 911/112/999) instead of waiting on this page.**"
     )
 
-    location_query = st.text_input(
-        "Your location",
-        placeholder="e.g. Boston, MA  or  10001  or  221B Baker Street, London",
-    )
-    radius_km = st.slider("Search radius (km)", min_value=2, max_value=50, value=10, step=1)
-    search = st.button("Find hospitals", type="primary", disabled=not location_query)
+    try:
+        google_maps_api_key = st.secrets.get("GOOGLE_MAPS_API_KEY")
+    except Exception:
+        google_maps_api_key = None
 
-    if search:
-        geocode_failed = False
-        with st.spinner("Locating you..."):
-            try:
-                geocoded = hospital_finder.geocode_location(location_query)
-            except Exception:
-                geocoded = None
-                geocode_failed = True
+    if not google_maps_api_key:
+        st.warning(
+            "The hospital map isn't set up yet. Add `GOOGLE_MAPS_API_KEY` to "
+            "`.streamlit/secrets.toml` — see `.streamlit/secrets.toml.example` for setup."
+        )
+    else:
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            use_location = st.button("📍 Use my location", type="primary")
+        with col2:
+            manual_location = st.text_input(
+                "Or enter a city, address, or zip code",
+                placeholder="e.g. Boston, MA",
+            )
+            manual_search = st.button("Search this location")
+
+        if use_location:
+            attempt = st.session_state.get("geo_attempt", 0) + 1
+            st.session_state["geo_attempt"] = attempt
+            with st.spinner("Getting your location..."):
+                location = get_geolocation(component_key=f"geo_{attempt}")
+
+            if location and location.get("coords"):
+                lat = location["coords"]["latitude"]
+                lon = location["coords"]["longitude"]
+                st.session_state["hospital_embed_params"] = {
+                    "key": google_maps_api_key,
+                    "q": "hospital",
+                    "center": f"{lat},{lon}",
+                    "zoom": "13",
+                }
+                st.session_state["hospital_location_label"] = "your current location"
+            elif location and location.get("error"):
                 st.error(
-                    "Couldn't reach the location service. Check your internet connection "
-                    "and try again."
+                    f"Couldn't get your location ({location['error']['message']}). "
+                    "Allow location access in your browser, or search by address instead."
                 )
 
-        if geocoded is None:
-            st.session_state.pop("hospital_origin", None)
-            st.session_state.pop("hospital_results", None)
-            if not geocode_failed:
-                st.warning("Couldn't find that location. Try a more specific address or city.")
+        if manual_search and manual_location:
+            st.session_state["hospital_embed_params"] = {
+                "key": google_maps_api_key,
+                "q": f"hospitals near {manual_location}",
+            }
+            st.session_state["hospital_location_label"] = manual_location
+
+        if "hospital_embed_params" in st.session_state:
+            st.caption(f"📍 Showing hospitals near **{st.session_state['hospital_location_label']}**")
+            embed_url = (
+                "https://www.google.com/maps/embed/v1/search?"
+                + urllib.parse.urlencode(st.session_state["hospital_embed_params"])
+            )
+            components.iframe(embed_url, height=500)
+            st.caption(
+                "Click a pin on the map for details and directions, powered by Google Maps."
+            )
         else:
-            lat, lon, display_name = geocoded
-            st.session_state["hospital_origin"] = (lat, lon, display_name)
-            with st.spinner("Searching for nearby hospitals..."):
-                try:
-                    st.session_state["hospital_results"] = hospital_finder.find_nearby_hospitals(
-                        lat, lon, radius_km=radius_km
-                    )
-                except Exception:
-                    st.session_state["hospital_results"] = []
-                    st.error(
-                        "Couldn't reach the hospital search service. Check your internet "
-                        "connection and try again."
-                    )
-
-    if "hospital_origin" in st.session_state:
-        lat, lon, display_name = st.session_state["hospital_origin"]
-        hospitals = st.session_state.get("hospital_results", [])
-        st.caption(f"📍 Showing results near **{display_name}**")
-
-        if not hospitals:
-            st.info("No hospitals found in this radius. Try increasing the search radius.")
-        else:
-            map_points = [{"lat": lat, "lon": lon, "color": "#0067B1", "size": 120}]
-            map_points += [
-                {"lat": h["lat"], "lon": h["lon"], "color": "#C8102E", "size": 80} for h in hospitals
-            ]
-            st.map(map_points, latitude="lat", longitude="lon", color="color", size="size")
-
-            for h in hospitals:
-                with st.container(border=True):
-                    col1, col2 = st.columns([3, 1])
-                    with col1:
-                        st.markdown(f"#### {h['name']}")
-                        if h["address"]:
-                            st.caption(h["address"])
-                    with col2:
-                        st.markdown(f"**{h['distance_km']:.1f} km away**")
-                    if h["emergency"]:
-                        st.markdown("🚨 **Has an emergency department**")
-                    if h["phone"]:
-                        st.markdown(f"📞 {h['phone']}")
-                    st.markdown(f"[Get directions ↗]({h['directions_url']})")
+            st.info("Click **Use my location** or search an address to see nearby hospitals.")
 
 st.divider()
 st.caption(
