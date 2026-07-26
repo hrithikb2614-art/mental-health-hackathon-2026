@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wisp — private messenger</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%90%3C/text%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
+<style>
+:root{
+  --bg:#0a0b10;--bg2:#0d0f18;--sur:#14161f;--sur2:#1b1e2b;--sur3:#232739;
+  --b:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.13);
+  --tx:#eef0f7;--mu:#8a8fa8;
+  --ac1:#7c6cf7;--ac2:#4f8ef7;
+  --ac:#7c6cf7;--acd:rgba(124,108,247,0.15);
+  --gr:#34d399;--grd:rgba(52,211,153,0.12);
+  --rd:#f7616f;--rdd:rgba(247,97,111,0.13);
+  --grad:linear-gradient(135deg,var(--ac1),var(--ac2));
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow-lg:0 20px 60px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:var(--sans);color:var(--tx);height:100vh;display:flex;flex-direction:column;
+  font-size:14px;line-height:1.5;
+  background:
+    radial-gradient(1100px 700px at 12% -8%, rgba(124,108,247,.16), transparent 60%),
+    radial-gradient(900px 600px at 110% 10%, rgba(79,142,247,.10), transparent 55%),
+    var(--bg);
+}
+::selection{background:rgba(124,108,247,.35)}
+#app{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+#sidebar{width:250px;background:linear-gradient(180deg,var(--sur),var(--bg2));border-right:1px solid var(--b);display:flex;flex-direction:column;flex-shrink:0;transition:margin-left .25s ease}
+#sb-top{padding:18px 16px 14px;border-bottom:1px solid var(--b)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.logo-icon{width:34px;height:34px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 6px 16px rgba(124,108,247,.35)}
+.logo-tx{font-size:16px;font-weight:800;letter-spacing:-.4px}
+.logo-tx span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo-sub{font-size:10.5px;color:var(--mu);padding-left:44px;margin-top:-2px;letter-spacing:.02em}
+#profile-card{display:flex;align-items:center;gap:9px;margin-top:14px;padding:8px 9px;border-radius:11px;background:var(--sur2);border:1px solid var(--b)}
+.profile-av{width:30px;height:30px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:#fff}
+#my-tag{font-size:12.5px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-dot{width:7px;height:7px;border-radius:50%;background:var(--mu);margin-left:auto;flex-shrink:0}
+.profile-dot.on{background:var(--gr);box-shadow:0 0 0 3px var(--grd)}
+
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);padding:16px 16px 6px;display:flex;align-items:center;justify-content:space-between}
+.sec-label button{background:var(--sur2);border:1px solid var(--b2);color:var(--mu);cursor:pointer;font-size:14px;line-height:1;width:20px;height:20px;border-radius:6px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.sec-label button:hover{color:#fff;background:var(--grad);border-color:transparent}
+#ch-list{flex:1;overflow-y:auto;padding:2px 10px 8px}
+#ch-list::-webkit-scrollbar{width:0}
+.ch-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;cursor:pointer;color:var(--mu);font-size:13px;transition:background .15s,color .15s,transform .1s;position:relative}
+.ch-item:hover{background:var(--sur2);color:var(--tx)}
+.ch-item:active{transform:scale(.98)}
+.ch-item.active{background:var(--acd);color:#cdc6ff}
+.ch-item.active::before{content:'';position:absolute;left:-10px;top:20%;bottom:20%;width:3px;border-radius:3px;background:var(--grad)}
+.ch-hash{font-size:15px;font-weight:700;flex-shrink:0;line-height:1;opacity:.7}
+.ch-name-tx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-dot{width:7px;height:7px;border-radius:50%;background:var(--b2);flex-shrink:0;transition:background .3s}
+.ch-dot.live{background:var(--gr);box-shadow:0 0 0 3px var(--grd)}
+.ch-badge{background:var(--grad);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;flex-shrink:0}
+#sb-bottom{padding:12px 10px;border-top:1px solid var(--b)}
+.new-ch-btn{width:100%;padding:10px 10px;border-radius:10px;background:none;border:1px dashed var(--b2);color:var(--mu);font-size:12.5px;cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.new-ch-btn:hover{border-color:var(--ac1);border-style:solid;color:var(--tx);background:var(--acd)}
+
+#sb-toggle{display:none;position:absolute;top:12px;left:12px;z-index:20;width:34px;height:34px;border-radius:9px;background:var(--sur2);border:1px solid var(--b2);color:var(--tx);font-size:15px;cursor:pointer;align-items:center;justify-content:center}
+#sb-scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:15}
+
+/* ── Main ────────────────────────────────────────────────── */
+#main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;position:relative}
+#welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--mu);text-align:center;padding:24px}
+#welcome .big{width:88px;height:88px;border-radius:26px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:8px;box-shadow:0 16px 40px rgba(124,108,247,.3)}
+#welcome h2{font-size:20px;font-weight:800;color:var(--tx);letter-spacing:-.3px}
+#welcome p{font-size:13px;max-width:280px;line-height:1.7}
+#welcome .hint{font-size:12.5px;background:var(--sur);border:1px solid var(--b2);border-radius:12px;padding:12px 16px;max-width:300px;color:var(--mu);line-height:1.7;margin-top:10px;text-align:left}
+#welcome .hint strong{color:var(--tx)}
+
+#ch-hdr{display:none;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--b);background:rgba(20,22,31,.85);backdrop-filter:blur(10px);flex-shrink:0}
+#ch-hdr.show{display:flex}
+.hdr-name{font-weight:700;font-size:15.5px;flex:1;letter-spacing:-.2px}
+.conn-badge{display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;flex-shrink:0}
+.conn-badge.ok{color:var(--gr);background:var(--grd)}
+.conn-badge.bad{color:var(--rd);background:var(--rdd)}
+.conn-badge.wait{color:var(--mu);background:var(--sur2)}
+.enc-badge{font-size:11px;color:var(--gr);background:var(--grd);padding:4px 10px;border-radius:20px;font-weight:600;flex-shrink:0;display:flex;align-items:center;gap:4px}
+.video-btn{background:var(--grad);border:none;color:#fff;padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .15s;display:flex;align-items:center;gap:6px;flex-shrink:0;box-shadow:0 6px 16px rgba(124,108,247,.3)}
+.video-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(124,108,247,.4)}
+.video-btn:active{transform:translateY(0)}
+.video-btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
+.leave-btn{background:none;border:none;color:var(--mu);cursor:pointer;font-size:17px;padding:5px;border-radius:8px;line-height:1;transition:all .15s}
+.leave-btn:hover{color:var(--rd);background:var(--rdd)}
+
+#msgs{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth}
+#msgs::-webkit-scrollbar{width:5px}
+#msgs::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+.msg-row{display:flex;gap:11px;padding:5px 8px;border-radius:10px;transition:background .12s;animation:msgIn .18s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.msg-row:hover{background:rgba(255,255,255,0.03)}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.msg-body{flex:1;min-width:0}
+.msg-head{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.msg-author{font-weight:700;font-size:13px;letter-spacing:-.1px}
+.msg-ts{font-size:10.5px;color:var(--mu)}
+.msg-text{font-size:14px;line-height:1.55;word-break:break-word;white-space:pre-wrap;background:var(--sur2);display:inline-block;padding:8px 13px;border-radius:4px 14px 14px 14px;border:1px solid var(--b)}
+.sys{align-self:center;font-size:11px;color:var(--mu);background:var(--sur);border:1px solid var(--b);border-radius:20px;padding:4px 14px;margin:8px 0;flex-shrink:0}
+
+#input-wrap{display:none;padding:14px 20px 18px;flex-shrink:0}
+#input-wrap.show{display:block}
+.ibar{display:flex;align-items:center;gap:8px;background:var(--sur2);border:1px solid var(--b2);border-radius:16px;padding:6px 6px 6px 16px;transition:border-color .15s,box-shadow .15s}
+.ibar:focus-within{border-color:var(--ac1);box-shadow:0 0 0 3px var(--acd)}
+#mf{flex:1;background:none;border:none;color:var(--tx);font-size:14px;font-family:var(--sans);outline:none;resize:none;line-height:1.5;max-height:120px;padding:6px 0}
+#mf::placeholder{color:var(--mu)}
+.sbtn{width:38px;height:38px;border-radius:11px;background:var(--grad);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,opacity .15s}
+.sbtn:hover{transform:scale(1.05)}
+.sbtn:active{transform:scale(.93)}
+.sbtn svg{width:16px;height:16px;fill:#fff}
+
+/* ── Call overlay ────────────────────────────────────────── */
+#call-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(6,7,11,0.98);flex-direction:column;align-items:center;justify-content:center}
+#call-overlay.show{display:flex}
+#ring-panel{display:none;flex-direction:column;align-items:center;gap:22px;background:var(--sur);border:1px solid var(--b2);border-radius:24px;padding:40px 52px;text-align:center;box-shadow:var(--shadow-lg)}
+#ring-panel.show{display:flex}
+.ring-pulse{width:84px;height:84px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.ring-pulse::before,.ring-pulse::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--ac1);opacity:0;animation:ripple 2s ease-out infinite}
+.ring-pulse::after{animation-delay:.7s}
+@keyframes ripple{0%{opacity:.6;transform:scale(1)}100%{opacity:0;transform:scale(1.55)}}
+.ring-who{font-size:21px;font-weight:800;letter-spacing:-.3px}
+.ring-sub{font-size:13px;color:var(--mu)}
+.ring-actions{display:flex;gap:14px;margin-top:4px}
+.ring-dec{background:var(--rdd);border:1px solid var(--rd);color:var(--rd);width:58px;height:58px;border-radius:50%;font-size:22px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.ring-dec:hover{background:var(--rd);color:#fff;transform:scale(1.06)}
+.ring-acc{background:var(--grd);border:1px solid var(--gr);color:var(--gr);width:58px;height:58px;border-radius:50%;font-size:22px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.ring-acc:hover{background:var(--gr);color:#fff;transform:scale(1.06)}
+
+#call-panel{display:none;flex-direction:column;width:100%;height:100%;position:relative}
+#call-panel.show{display:flex}
+#video-grid{flex:1;display:grid;grid-template-columns:1fr;align-items:center;justify-items:center;gap:10px;padding:18px;overflow:hidden}
+#video-grid.multi{grid-template-columns:repeat(2,1fr)}
+.vid-wrap{position:relative;border-radius:18px;overflow:hidden;background:#08090d;width:100%;max-height:calc(100vh - 120px);aspect-ratio:16/9;border:1px solid var(--b2);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.vid-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.vid-label{position:absolute;bottom:12px;left:14px;font-size:12px;font-weight:700;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);padding:4px 11px;border-radius:20px}
+.vid-status{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--mu);background:rgba(0,0,0,.7);padding:4px 11px;border-radius:20px;white-space:nowrap}
+.vid-muted-badge{position:absolute;bottom:12px;right:12px;font-size:16px;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);padding:5px 9px;border-radius:9px;display:none}
+.vid-muted-badge.show{display:block}
+.vid-no-cam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--mu);font-size:13px}
+.vid-no-cam .av-big{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+#self-pip{position:absolute;bottom:88px;right:18px;width:168px;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:2px solid var(--b2);background:#08090d;cursor:move;box-shadow:0 10px 28px rgba(0,0,0,.55);z-index:10}
+#self-pip video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+#self-pip .vid-label{font-size:10px;bottom:6px;left:8px}
+#no-cam-self{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#08090d;font-size:22px;visibility:hidden}
+#no-cam-self.show{visibility:visible}
+#call-controls{display:flex;align-items:center;justify-content:center;gap:14px;padding:18px;flex-shrink:0}
+.ctrl-btn{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ctrl-btn.mic{background:var(--sur2);border:1px solid var(--b2);color:var(--tx)}
+.ctrl-btn.mic:hover,.ctrl-btn.cam:hover,.ctrl-btn.screen:hover{background:var(--sur3);transform:translateY(-1px)}
+.ctrl-btn.mic.off{background:var(--rdd);border-color:var(--rd);color:var(--rd)}
+.ctrl-btn.cam{background:var(--sur2);border:1px solid var(--b2);color:var(--tx)}
+.ctrl-btn.cam.off{background:var(--rdd);border-color:var(--rd);color:var(--rd)}
+.ctrl-btn.screen{background:var(--sur2);border:1px solid var(--b2);color:var(--tx)}
+.ctrl-btn.screen.on{background:var(--acd);border-color:var(--ac1);color:#cdc6ff}
+.ctrl-btn.hangup{background:linear-gradient(135deg,#f7616f,#e0475a);color:#fff;width:58px;height:58px;font-size:20px;box-shadow:0 6px 18px rgba(247,97,111,.4)}
+.ctrl-btn.hangup:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(247,97,111,.5)}
+#call-info{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);backdrop-filter:blur(10px);border:1px solid var(--b2);border-radius:20px;padding:6px 18px;font-size:12px;color:var(--mu);display:flex;align-items:center;gap:8px;z-index:10;white-space:nowrap}
+#call-info .ch-name{color:var(--tx);font-weight:700}
+#call-timer{font-variant-numeric:tabular-nums;color:var(--gr);font-weight:600}
+
+/* ── Modal ───────────────────────────────────────────────── */
+#mbg{display:none;position:fixed;inset:0;background:rgba(4,5,8,.65);backdrop-filter:blur(3px);z-index:100;align-items:center;justify-content:center}
+#mbg.show{display:flex}
+#modal{background:var(--sur);border:1px solid var(--b2);border-radius:20px;padding:0;width:360px;max-width:92vw;box-shadow:var(--shadow-lg);overflow:hidden;animation:modalIn .18s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.m-head{padding:22px 26px 16px;background:linear-gradient(180deg,rgba(124,108,247,.10),transparent)}
+.m-title{font-size:17px;font-weight:800;margin-bottom:4px;letter-spacing:-.3px}
+.m-sub{font-size:12.5px;color:var(--mu);line-height:1.6}
+.m-body{padding:4px 26px 26px}
+.mf-wrap{margin-bottom:14px}
+.mf-wrap label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mu);margin-bottom:6px}
+.mf-wrap input{width:100%;background:var(--bg);border:1px solid var(--b2);border-radius:10px;padding:10px 13px;color:var(--tx);font-size:14px;font-family:var(--sans);outline:none;transition:border-color .15s,box-shadow .15s}
+.mf-wrap input:focus{border-color:var(--ac1);box-shadow:0 0 0 3px var(--acd)}
+.mf-wrap input::placeholder{color:var(--mu)}
+.invite-hint{font-size:12px;color:var(--mu);background:var(--sur2);border:1px solid var(--b);border-radius:10px;padding:11px 13px;margin-bottom:18px;line-height:1.7}
+.invite-hint strong{color:var(--gr)}
+.mbtns{display:flex;gap:8px;justify-content:flex-end}
+.btn{background:var(--grad);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:transform .15s,box-shadow .15s;box-shadow:0 6px 16px rgba(124,108,247,.3)}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.7;cursor:default;transform:none}
+.btn-g{background:var(--sur2);color:var(--tx);border:1px solid var(--b2);box-shadow:none}
+.btn-g:hover{border-color:var(--ac1);transform:none}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--sur2);border:1px solid var(--b2);color:var(--tx);padding:9px 18px;border-radius:20px;font-size:12.5px;font-weight:500;transition:transform .2s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+#status-bar{height:26px;background:var(--bg2);border-top:1px solid var(--b);display:flex;align-items:center;padding:0 16px;gap:8px;flex-shrink:0}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--mu)}
+.sb-dot.ok{background:var(--gr);box-shadow:0 0 0 3px var(--grd)}
+.sb-dot.bad{background:var(--rd);box-shadow:0 0 0 3px var(--rdd)}
+#sb-txt{font-size:10.5px;color:var(--mu)}
+
+.a0{background:#211f45;color:#9b8cff}.a1{background:#0e3a26;color:#34d399}
+.a2{background:#3a1218;color:#f7616f}.a3{background:#3a2c08;color:#e0b52f}
+.a4{background:#2a1240;color:#d68cf7}.a5{background:#0e2938;color:#38c2e8}
+.spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-width: 760px){
+  #sb-toggle{display:flex}
+  #sidebar{position:fixed;top:0;bottom:0;left:0;z-index:20;margin-left:-250px;box-shadow:0 0 40px rgba(0,0,0,.5)}
+  #sidebar.open{margin-left:0}
+  #sidebar.open ~ #sb-scrim, #sb-scrim.show{display:block}
+  #ch-hdr{padding-left:56px;gap:7px}
+  .enc-badge{display:none}
+  .video-btn span{display:none}
+  .video-btn{padding:8px;width:32px;height:32px;border-radius:50%}
+  .video-btn svg{width:14px;height:14px}
+  .conn-badge{padding:4px 8px;font-size:10px}
+  #self-pip{width:110px;bottom:78px;right:10px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <button id="sb-toggle" onclick="toggleSidebar()" title="Channels">☰</button>
+  <div id="sb-scrim" onclick="toggleSidebar()"></div>
+  <div id="sidebar">
+    <div id="sb-top">
+      <div class="logo"><div class="logo-icon">🔐</div><div class="logo-tx">Wi<span>sp</span></div></div>
+      <div class="logo-sub">private, end-to-end encrypted chat</div>
+      <div id="profile-card">
+        <div class="profile-av" id="profile-av">?</div>
+        <div id="my-tag">Not connected</div>
+        <div class="profile-dot" id="profile-dot"></div>
+      </div>
+    </div>
+    <div class="sec-label">Channels <button onclick="openModal()" title="New channel">＋</button></div>
+    <div id="ch-list"></div>
+    <div id="sb-bottom">
+      <button class="new-ch-btn" onclick="openModal()">＋ &nbsp;New / join channel</button>
+    </div>
+  </div>
+  <div id="main">
+    <div id="welcome">
+      <div class="big">💬</div>
+      <h2>Welcome to Wisp</h2>
+      <p>Create or join a channel to start chatting — encrypted end to end, no accounts needed.</p>
+      <div class="hint">📤 <strong>To invite someone:</strong><br>Just share the <strong>channel name</strong> + <strong>password</strong>. Whoever enters both lands in the same room.</div>
+    </div>
+    <div id="ch-hdr">
+      <div class="hdr-name" id="hdr-name">#channel</div>
+      <div class="conn-badge wait" id="conn-badge">connecting…</div>
+      <div class="enc-badge">🔒 E2E encrypted</div>
+      <button class="video-btn" onclick="startCall()">
+        <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+        <span>Video Call</span>
+      </button>
+      <button class="leave-btn" onclick="leaveChannel()" title="Leave">✕</button>
+    </div>
+    <div id="msgs"></div>
+    <div id="input-wrap">
+      <div class="ibar">
+        <textarea id="mf" placeholder="Message" rows="1"></textarea>
+        <button class="sbtn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="status-bar"><div class="sb-dot" id="sb-dot"></div><span id="sb-txt">Connecting…</span></div>
+<div id="mbg">
+  <div id="modal">
+    <div class="m-head">
+      <div class="m-title">Join a channel</div>
+      <div class="m-sub">Anyone with the same name + password joins the same room.</div>
+    </div>
+    <div class="m-body">
+      <div class="mf-wrap"><label>Your name</label><input id="in-name" placeholder="e.g. Alex" maxlength="24" autocomplete="off"/></div>
+      <div class="mf-wrap"><label>Channel name</label><input id="in-ch" placeholder="e.g. friends" maxlength="40" autocomplete="off"/></div>
+      <div class="mf-wrap"><label>Password</label><input id="in-pw" placeholder="e.g. sunset42" maxlength="64" autocomplete="off"/></div>
+      <div class="invite-hint">💡 Share the <strong>channel name + password</strong> to invite people. No link needed.</div>
+      <div class="mbtns">
+        <button class="btn btn-g" onclick="closeModal()">Cancel</button>
+        <button class="btn" id="join-btn" onclick="joinChannel()">Join</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="call-overlay">
+  <div id="ring-panel">
+    <div class="ring-pulse">📹</div>
+    <div>
+      <div class="ring-who" id="ring-who">Someone</div>
+      <div class="ring-sub">is calling in <span id="ring-ch">#channel</span></div>
+    </div>
+    <div class="ring-actions">
+      <button class="ring-dec" onclick="declineCall()">📵</button>
+      <button class="ring-acc" onclick="acceptCall()">📞</button>
+    </div>
+  </div>
+  <div id="call-panel">
+    <div id="call-info">
+      <span>🔒 Encrypted</span><span>·</span>
+      <span class="ch-name" id="call-ch-name">#ch</span><span>·</span>
+      <span id="call-timer">0:00</span>
+    </div>
+    <div id="video-grid"></div>
+    <div id="self-pip">
+      <video id="local-vid" autoplay muted playsinline></video>
+      <div id="no-cam-self">🎥</div>
+      <div class="vid-label" id="self-label">You</div>
+    </div>
+    <div id="call-controls">
+      <button class="ctrl-btn mic" id="mic-btn" onclick="toggleMic()">🎙️</button>
+      <button class="ctrl-btn cam" id="cam-btn" onclick="toggleCam()">📷</button>
+      <button class="ctrl-btn screen" id="screen-btn" onclick="toggleScreen()">🖥️</button>
+      <button class="ctrl-btn hangup" onclick="hangUp()">📵</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const BROKER_HOST = 'broker.hivemq.com';
+const BROKER_PORT = 8884;
+const BROKER_PATH = '/mqtt';
+
+// We use "vanilla ICE": wait for ALL candidates before sending SDP.
+// This means zero separate ICE messages — no race conditions possible.
+// TURN servers are fetched fresh at call time so credentials are never stale.
+const ICE_GATHER_MS = 6000; // max wait for ICE gathering
+
+let client = null, connected = false;
+let myName = '', myId = 'u' + Math.random().toString(36).slice(2,9);
+let channels = {}, activeChannel = null;
+const AV = ['a0','a1','a2','a3','a4','a5'];
+let nameColorMap = {};
+
+let callState = 'idle'; // idle|outgoing|incoming|active
+let callChannel = null;
+let callPeers   = {};   // peerId -> {pc, vidWrap, audioEl, statusEl, micBadge}
+let localStream = null, screenStream = null;
+let micOn = true, camOn = true, screenOn = false;
+let pendingOffer = null;
+let timerInterval = null, timerStart = 0;
+
+// ── TURN: fetch fresh credentials at call time ────────────────────────────────
+// Metered.ca's open relay provides time-limited HMAC TURN credentials via REST.
+// This is far more reliable than hardcoded static credentials.
+async function getIceServers() {
+  // Always include Google STUN as base
+  const base = [
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+    {urls:'stun:stun.cloudflare.com:3478'},
+  ];
+  try {
+    // Metered.ca public open relay — returns fresh short-lived TURN credentials
+    const r = await fetch('https://cryptchat.metered.live/api/v1/turn/credentials?apiKey=openrelayprojectsharedkey', {signal: AbortSignal.timeout(4000)});
+    if (r.ok) {
+      const servers = await r.json();
+      console.log('[ICE] Fetched', servers.length, 'servers from Metered.ca');
+      return [...base, ...servers];
+    }
+  } catch(e) {
+    console.warn('[ICE] Metered fetch failed, using fallback TURN:', e.message);
+  }
+  // Fallback: hardcoded TURN servers from multiple providers
+  return [
+    ...base,
+    {urls:'turn:openrelay.metered.ca:80',        username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443',        username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:3478',       username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:relay.metered.ca:80',             username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:relay.metered.ca:443',            username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:relay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'},
+  ];
+}
+
+// ── MQTT ──────────────────────────────────────────────────────────────────────
+function connectMQTT() {
+  setStatus('connecting');
+  try { client = new Paho.Client(BROKER_HOST, BROKER_PORT, BROKER_PATH, myId); }
+  catch(e) { setStatus('error','Paho not loaded'); return; }
+  client.onConnectionLost = () => {
+    connected = false; setStatus('bad','Disconnected — reconnecting…');
+    updateConnBadge(); setTimeout(connectMQTT, 3000);
+  };
+  client.onMessageArrived = onMessage;
+  client.connect({ useSSL:true, keepAliveInterval:30, cleanSession:true,
+    onSuccess: () => {
+      connected = true; setStatus('ok','Connected'); updateConnBadge();
+      Object.keys(channels).forEach(ch => { client.subscribe(channels[ch].topic); publishPresence(ch,'join'); });
+    },
+    onFailure: () => {
+      connected = false; setStatus('bad','Relay unreachable — retrying…');
+      setTimeout(connectMQTT, 4000);
+    }
+  });
+}
+
+// ── CRYPTO ────────────────────────────────────────────────────────────────────
+async function deriveKey(pass, channel) {
+  const enc = new TextEncoder();
+  const km = await crypto.subtle.importKey('raw', enc.encode(pass+'|'+channel), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:enc.encode('cryptchat-v4-salt'), iterations:120000, hash:'SHA-256'},
+    km, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function encStr(text, key) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, new TextEncoder().encode(text));
+  const out = new Uint8Array(12+ct.byteLength);
+  out.set(iv); out.set(new Uint8Array(ct),12);
+  // Safe base64 for large arrays — don't use spread which can stack overflow
+  let bin = '';
+  for (let i=0; i<out.length; i++) bin += String.fromCharCode(out[i]);
+  return btoa(bin);
+}
+async function decStr(b64, key) {
+  const bin = atob(b64);
+  const d = new Uint8Array(bin.length);
+  for (let i=0; i<bin.length; i++) d[i] = bin.charCodeAt(i);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM',iv:d.slice(0,12)}, key, d.slice(12));
+  return new TextDecoder().decode(pt);
+}
+function makeTopic(channel, pass) {
+  let h = 5381;
+  const s = 'cc4:'+channel.toLowerCase()+':'+pass;
+  for (let i=0; i<s.length; i++) h=((h<<5)+h)^s.charCodeAt(i);
+  return 'cryptchat/room/'+(h>>>0).toString(36);
+}
+
+// ── JOIN ──────────────────────────────────────────────────────────────────────
+async function joinChannel() {
+  const name   = document.getElementById('in-name').value.trim();
+  const chRaw  = document.getElementById('in-ch').value.trim();
+  const pass   = document.getElementById('in-pw').value.trim();
+  const chName = chRaw.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+  if (!name)   { toast('Enter your name'); return; }
+  if (!chName) { toast('Enter a channel name'); return; }
+  if (!pass)   { toast('Enter a password'); return; }
+  myName = name;
+  document.getElementById('my-tag').textContent = myName;
+  document.getElementById('profile-av').textContent = myName[0].toUpperCase();
+  document.getElementById('profile-dot').classList.toggle('on', connected);
+  document.getElementById('self-label').textContent = myName+' (you)';
+  if (channels[chName]) { closeModal(); switchChannel(chName); return; }
+  const btn = document.getElementById('join-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Joining…';
+  const key   = await deriveKey(pass, chName);
+  const topic = makeTopic(chName, pass);
+  channels[chName] = {key, topic, msgs:[], members:{}};
+  if (connected) { client.subscribe(topic,{qos:0}); publishPresence(chName,'join'); }
+  closeModal(); btn.disabled=false; btn.textContent='Join';
+  renderSidebar(); switchChannel(chName); toast('Joined #'+chName);
+}
+
+// ── MESSAGING ─────────────────────────────────────────────────────────────────
+function publishPresence(chName, type) {
+  const ch = channels[chName];
+  if (!connected||!ch) return;
+  const msg = new Paho.Message(JSON.stringify({t:type,id:myId,name:myName}));
+  msg.destinationName=ch.topic; msg.qos=0; msg.retained=false;
+  try{client.send(msg);}catch(e){}
+}
+async function publishMsg(chName, text) {
+  const ch = channels[chName];
+  if (!connected||!ch) return false;
+  const p = await encStr(text, ch.key);
+  const msg = new Paho.Message(JSON.stringify({t:'msg',id:myId,name:myName,p}));
+  msg.destinationName=ch.topic; msg.qos=0; msg.retained=false;
+  try{client.send(msg); return true;}catch(e){return false;}
+}
+async function publishSignal(chName, subtype, to, data) {
+  const ch = channels[chName];
+  if (!connected||!ch) return;
+  const inner = JSON.stringify({subtype, from:myId, name:myName, to, data});
+  const p = await encStr(inner, ch.key);
+  const msg = new Paho.Message(JSON.stringify({t:'signal',id:myId,to,p}));
+  msg.destinationName=ch.topic; msg.qos=0; msg.retained=false;
+  try{client.send(msg);}catch(e){}
+}
+
+async function onMessage(mqttMsg) {
+  let pkt; try{pkt=JSON.parse(mqttMsg.payloadString);}catch{return;}
+  if (pkt.id===myId) return;
+  const chName = Object.keys(channels).find(c=>channels[c].topic===mqttMsg.destinationName);
+  if (!chName) return;
+  const ch = channels[chName];
+  if (pkt.t==='join') {
+    ch.members[pkt.id]=pkt.name; addSys(chName,pkt.name+' joined');
+    updateMemberCount(chName); publishPresence(chName,'here');
+  } else if (pkt.t==='here') {
+    ch.members[pkt.id]=pkt.name; updateMemberCount(chName);
+  } else if (pkt.t==='leave') {
+    const who=ch.members[pkt.id]||'Someone';
+    delete ch.members[pkt.id]; addSys(chName,who+' left');
+    updateMemberCount(chName);
+    if (callChannel===chName) removePeer(pkt.id);
+  } else if (pkt.t==='msg') {
+    let text; try{text=await decStr(pkt.p,ch.key);}catch{text='[⚠️ Cannot decrypt]';}
+    addChatMsg(chName,pkt.name||'Unknown',text,false);
+  } else if (pkt.t==='signal') {
+    if (pkt.to && pkt.to!==myId) return;
+    let inner; try{inner=JSON.parse(await decStr(pkt.p,ch.key));}catch{return;}
+    handleSignal(chName,inner);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WebRTC — Vanilla ICE
+// Both peers wait for ICE gathering to complete before sending SDP.
+// This means the SDP already contains every candidate.
+// Zero separate ICE messages. Zero race conditions.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function waitForIce(pc) {
+  return new Promise(resolve => {
+    if (pc.iceGatheringState==='complete') { resolve(); return; }
+    const t = setTimeout(()=>{ pc.removeEventListener('icegatheringstatechange',fn); resolve(); }, ICE_GATHER_MS);
+    function fn() {
+      if (pc.iceGatheringState==='complete') {
+        clearTimeout(t); pc.removeEventListener('icegatheringstatechange',fn); resolve();
+      }
+    }
+    pc.addEventListener('icegatheringstatechange', fn);
+  });
+}
+
+async function handleSignal(chName, sig) {
+  const {subtype, from, name, data} = sig;
+
+  if (subtype==='call-offer') {
+    if (callState==='idle') {
+      pendingOffer = {from, name, chName, sdp:data.sdp};
+      callState='incoming'; callChannel=chName;
+      showRingPanel(name, chName);
+    } else if (callState==='active' && callChannel===chName) {
+      await doAnswer(chName, from, name, data.sdp);
+    }
+
+  } else if (subtype==='call-answer') {
+    const peer = callPeers[from];
+    if (!peer) return;
+    try {
+      await peer.pc.setRemoteDescription({type:'answer', sdp:data.sdp});
+      if (callState==='outgoing') callState='active';
+      setPeerStatus(from, '');
+      console.log('[WebRTC] Remote description set for', name);
+    } catch(e) { console.error('[WebRTC] setRemoteDescription(answer) failed:', e); }
+
+  } else if (subtype==='call-decline') {
+    if (callState==='outgoing'||callState==='active') { toast(name+' declined'); cleanupCall(); }
+
+  } else if (subtype==='call-end') {
+    removePeer(from);
+    if (Object.keys(callPeers).length===0 && callState!=='idle') {
+      addSys(chName, name+' ended the call'); cleanupCall();
+    }
+
+  } else if (subtype==='media-state') {
+    const peer = callPeers[from]; if (!peer) return;
+    if (data.micOn!==undefined && peer.micBadge)
+      peer.micBadge.classList.toggle('show',!data.micOn);
+    if (data.camOn!==undefined && peer.vidWrap) {
+      peer.vidWrap.querySelector('.vid-no-cam').style.display = data.camOn?'none':'flex';
+      const v = peer.vidWrap.querySelector('video');
+      if (v) v.style.display = data.camOn?'block':'none';
+    }
+  }
+}
+
+function setPeerStatus(peerId, msg) {
+  const peer = callPeers[peerId]; if (!peer||!peer.statusEl) return;
+  peer.statusEl.textContent = msg;
+  peer.statusEl.style.display = msg ? 'block' : 'none';
+}
+
+async function buildPC(chName, peerId, peerName, iceServers) {
+  const pc = new RTCPeerConnection({iceServers});
+
+  // Create UI elements and register peer BEFORE any async work
+  const vidWrap  = createRemoteVideoEl(peerId, peerName);
+  const micBadge = vidWrap.querySelector('.vid-muted-badge');
+  const statusEl = vidWrap.querySelector('.vid-status');
+  callPeers[peerId] = {pc, vidWrap, micBadge, statusEl, audioEl:null};
+
+  // Add our local tracks so the other side gets our audio+video
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  pc.ontrack = (e) => {
+    const peer = callPeers[peerId]; if (!peer) return;
+    const track = e.track;
+    console.log('[WebRTC] Got remote track:', track.kind, 'from', peerName);
+
+    if (track.kind==='audio') {
+      // Dedicated <audio> element — never hidden, always plays
+      if (!peer.audioEl) {
+        const a = document.createElement('audio');
+        a.autoplay = true; a.muted = false;
+        document.body.appendChild(a);
+        peer.audioEl = a;
+      }
+      if (!peer.audioEl.srcObject) peer.audioEl.srcObject = new MediaStream();
+      if (!peer.audioEl.srcObject.getAudioTracks().find(t=>t.id===track.id))
+        peer.audioEl.srcObject.addTrack(track);
+      peer.audioEl.play().catch(err => console.warn('[audio] play():', err));
+
+    } else if (track.kind==='video') {
+      const vid = peer.vidWrap.querySelector('video');
+      if (!vid) return;
+      if (!vid.srcObject) vid.srcObject = new MediaStream();
+      if (!vid.srcObject.getVideoTracks().find(t=>t.id===track.id))
+        vid.srcObject.addTrack(track);
+      vid.style.display = 'block';
+      vid.play().catch(err => console.warn('[video] play():', err));
+      peer.vidWrap.querySelector('.vid-no-cam').style.display = 'none';
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    const s = pc.connectionState;
+    console.log('[WebRTC]', peerName, 'connection:', s);
+    setPeerStatus(peerId, s==='connecting'?'Connecting…': s==='connected'?'': s==='failed'?'⚠️ Connection failed': s==='disconnected'?'Reconnecting…':'');
+    if (s==='connected') {
+      // Connection is live — update label
+      const noVid = callPeers[peerId]?.vidWrap?.querySelector('.vid-no-cam span');
+      if (noVid) noVid.textContent = peerName+"'s camera is off";
+    }
+    if (s==='failed') {
+      console.log('[WebRTC] Attempting ICE restart for', peerName);
+      pc.restartIce();
+    }
+    if (s==='disconnected') {
+      setTimeout(()=>{
+        if (callPeers[peerId]?.pc?.connectionState==='disconnected') {
+          removePeer(peerId);
+          if (Object.keys(callPeers).length===0) cleanupCall();
+        }
+      }, 8000);
+    }
+  };
+
+  pc.onicegatheringstatechange = () => {
+    console.log('[ICE] Gathering state:', pc.iceGatheringState, 'for', peerName);
+  };
+
+  return pc;
+}
+
+// Caller: create offer → wait for all ICE → send full SDP
+async function doOffer(chName, peerId, peerName, iceServers) {
+  setPeerStatus(peerId, 'Gathering network path…');
+  const pc = await buildPC(chName, peerId, peerName, iceServers);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  console.log('[ICE] Waiting for gathering…');
+  await waitForIce(pc);
+  const finalSdp = pc.localDescription.sdp;
+  const candidateCount = (finalSdp.match(/^a=candidate:/mg)||[]).length;
+  console.log('[ICE] Gathered', candidateCount, 'candidates. Sending offer.');
+  if (candidateCount===0) toast('⚠️ No network path found — call may fail. Check firewall/VPN.');
+  await publishSignal(chName, 'call-offer', peerId, {sdp: finalSdp});
+  setPeerStatus(peerId, 'Waiting for answer…');
+}
+
+// Callee: receive offer → create answer → wait for all ICE → send full SDP
+async function doAnswer(chName, peerId, peerName, offerSdp, iceServers) {
+  // Clean up stale peer if any
+  if (callPeers[peerId]) {
+    try{callPeers[peerId].pc.close();}catch(e){}
+    callPeers[peerId].vidWrap?.remove();
+    if (callPeers[peerId].audioEl) { callPeers[peerId].audioEl.srcObject=null; callPeers[peerId].audioEl.remove(); }
+    delete callPeers[peerId]; updateGridLayout();
+  }
+  const pc = await buildPC(chName, peerId, peerName, iceServers);
+  setPeerStatus(peerId, 'Connecting…');
+  await pc.setRemoteDescription({type:'offer', sdp:offerSdp});
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  console.log('[ICE] Callee gathering…');
+  await waitForIce(pc);
+  const finalSdp = pc.localDescription.sdp;
+  const candidateCount = (finalSdp.match(/^a=candidate:/mg)||[]).length;
+  console.log('[ICE] Callee gathered', candidateCount, 'candidates. Sending answer.');
+  await publishSignal(chName, 'call-answer', peerId, {sdp: finalSdp});
+}
+
+// ── START CALL ────────────────────────────────────────────────────────────────
+async function startCall() {
+  if (!activeChannel) return;
+  if (callState!=='idle') { toast('Already in a call'); return; }
+  const ch = channels[activeChannel];
+  const members = Object.keys(ch.members);
+  if (members.length===0) { toast('No one else is here yet'); return; }
+
+  callState='outgoing'; callChannel=activeChannel;
+  toast('Getting camera & fetching network servers…');
+
+  // Fetch media and ICE servers in parallel
+  const [stream, iceServers] = await Promise.all([getLocalMedia(), getIceServers()]);
+  if (!stream) { callState='idle'; callChannel=null; return; }
+  localStream = stream;
+
+  showCallPanel(activeChannel);
+  for (const peerId of members) {
+    await doOffer(activeChannel, peerId, ch.members[peerId], iceServers);
+  }
+  addSys(activeChannel, '📹 You started a video call');
+}
+
+// ── ACCEPT CALL ───────────────────────────────────────────────────────────────
+async function acceptCall() {
+  if (!pendingOffer) return;
+  const {from, name, chName, sdp} = pendingOffer;
+  pendingOffer = null;
+
+  const [stream, iceServers] = await Promise.all([getLocalMedia(), getIceServers()]);
+  if (!stream) { callState='idle'; callChannel=null; hideCallOverlay(); return; }
+  localStream = stream;
+
+  callState='active'; callChannel=chName;
+  showCallPanel(chName);
+  await doAnswer(chName, from, name, sdp, iceServers);
+  addSys(chName, '📹 '+name+' started a video call — you joined');
+}
+
+function declineCall() {
+  if (pendingOffer) publishSignal(pendingOffer.chName,'call-decline',pendingOffer.from,{});
+  pendingOffer=null; callState='idle'; callChannel=null; hideCallOverlay();
+}
+
+// ── HANG UP ───────────────────────────────────────────────────────────────────
+async function hangUp() {
+  if (!callChannel) { cleanupCall(); return; }
+  for (const pid of Object.keys(callPeers)) await publishSignal(callChannel,'call-end',pid,{});
+  addSys(callChannel,'📹 You ended the call'); cleanupCall();
+}
+
+function cleanupCall() {
+  Object.keys(callPeers).forEach(id=>{
+    try{callPeers[id].pc.close();}catch(e){}
+    callPeers[id].vidWrap?.remove();
+    if (callPeers[id].audioEl){callPeers[id].audioEl.srcObject=null;callPeers[id].audioEl.remove();}
+  });
+  callPeers={};
+  if (localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}
+  if (screenStream){screenStream.getTracks().forEach(t=>t.stop());screenStream=null;}
+  micOn=true;camOn=true;screenOn=false;
+  document.getElementById('mic-btn').className='ctrl-btn mic';
+  document.getElementById('mic-btn').textContent='🎙️';
+  document.getElementById('cam-btn').className='ctrl-btn cam';
+  document.getElementById('cam-btn').textContent='📷';
+  document.getElementById('screen-btn').className='ctrl-btn screen';
+  document.getElementById('screen-btn').textContent='🖥️';
+  document.getElementById('local-vid').srcObject=null;
+  document.getElementById('no-cam-self').classList.remove('show');
+  document.getElementById('video-grid').innerHTML='';
+  stopTimer();
+  callState='idle';callChannel=null;pendingOffer=null;
+  hideCallOverlay();
+}
+
+// ── MEDIA ─────────────────────────────────────────────────────────────────────
+async function getLocalMedia() {
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    camOn=true;micOn=true; return s;
+  } catch(e) {}
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({audio:true});
+    camOn=false;micOn=true; toast('No camera — audio only'); return s;
+  } catch(e) {}
+  toast('Cannot access camera or microphone'); return null;
+}
+
+function removePeer(peerId) {
+  const peer=callPeers[peerId]; if(!peer)return;
+  try{peer.pc.close();}catch(e){}
+  peer.vidWrap?.remove();
+  if (peer.audioEl){peer.audioEl.srcObject=null;peer.audioEl.remove();}
+  delete callPeers[peerId]; updateGridLayout();
+}
+function updateGridLayout() {
+  document.getElementById('video-grid').classList.toggle('multi',Object.keys(callPeers).length>1);
+}
+
+function createRemoteVideoEl(peerId, peerName) {
+  const color=(()=>{if(!nameColorMap[peerName])nameColorMap[peerName]=AV[Object.keys(nameColorMap).length%AV.length];return nameColorMap[peerName];})();
+  const wrap=document.createElement('div'); wrap.className='vid-wrap'; wrap.id='vid-'+peerId;
+  const noVid=document.createElement('div'); noVid.className='vid-no-cam'; noVid.style.display='flex';
+  noVid.innerHTML=`<div class="av-big ${color}">${(peerName||'?')[0].toUpperCase()}</div><span>${esc(peerName)} — waiting…</span>`;
+  const vid=document.createElement('video'); vid.autoplay=true; vid.playsinline=true;
+  vid.muted=false;  // MUST NOT be muted — this is the remote audio
+  vid.style.display='none';
+  const label=document.createElement('div'); label.className='vid-label'; label.textContent=peerName;
+  const badge=document.createElement('div'); badge.className='vid-muted-badge'; badge.textContent='🔇';
+  const status=document.createElement('div'); status.className='vid-status'; status.style.display='none';
+  wrap.appendChild(noVid); wrap.appendChild(vid); wrap.appendChild(label); wrap.appendChild(badge); wrap.appendChild(status);
+  document.getElementById('video-grid').appendChild(wrap);
+  updateGridLayout(); return wrap;
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────────
+function toggleMic() {
+  if (!localStream) return; micOn=!micOn;
+  localStream.getAudioTracks().forEach(t=>t.enabled=micOn);
+  const b=document.getElementById('mic-btn');
+  b.className='ctrl-btn mic'+(micOn?'':' off'); b.textContent=micOn?'🎙️':'🔇';
+  broadcastMedia();
+}
+function toggleCam() {
+  if (!localStream) return; camOn=!camOn;
+  localStream.getVideoTracks().forEach(t=>t.enabled=camOn);
+  const b=document.getElementById('cam-btn');
+  b.className='ctrl-btn cam'+(camOn?'':' off'); b.textContent=camOn?'📷':'🚫';
+  document.getElementById('no-cam-self').classList.toggle('show',!camOn);
+  broadcastMedia();
+}
+async function toggleScreen() {
+  if (screenOn) {
+    if (screenStream){screenStream.getTracks().forEach(t=>t.stop());screenStream=null;}
+    screenOn=false;
+    document.getElementById('screen-btn').className='ctrl-btn screen';
+    document.getElementById('screen-btn').textContent='🖥️';
+    if (localStream&&camOn) {
+      try {
+        const cs=await navigator.mediaDevices.getUserMedia({video:true});
+        const ct=cs.getVideoTracks()[0];
+        localStream.getVideoTracks().forEach(t=>{localStream.removeTrack(t);t.stop();});
+        localStream.addTrack(ct); replaceVid(ct);
+        document.getElementById('local-vid').srcObject=localStream;
+      }catch(e){}
+    }
+  } else {
+    try {
+      screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});
+      const st=screenStream.getVideoTracks()[0];
+      st.onended=()=>{if(screenOn)toggleScreen();};
+      replaceVid(st); document.getElementById('local-vid').srcObject=screenStream;
+      screenOn=true;
+      document.getElementById('screen-btn').className='ctrl-btn screen on';
+      document.getElementById('screen-btn').textContent='⏹️';
+    }catch(e){toast('Screen share cancelled');}
+  }
+}
+function replaceVid(track) {
+  Object.keys(callPeers).forEach(id=>{
+    const s=callPeers[id].pc.getSenders().find(s=>s.track?.kind==='video');
+    if(s)s.replaceTrack(track).catch(()=>{});
+  });
+}
+async function broadcastMedia() {
+  if (!callChannel) return;
+  for (const pid of Object.keys(callPeers))
+    await publishSignal(callChannel,'media-state',pid,{micOn,camOn});
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function showRingPanel(name, chName) {
+  document.getElementById('ring-who').textContent=name;
+  document.getElementById('ring-ch').textContent='#'+chName;
+  document.getElementById('ring-panel').classList.add('show');
+  document.getElementById('call-panel').classList.remove('show');
+  document.getElementById('call-overlay').classList.add('show');
+}
+function showCallPanel(chName) {
+  document.getElementById('ring-panel').classList.remove('show');
+  document.getElementById('call-panel').classList.add('show');
+  document.getElementById('call-overlay').classList.add('show');
+  document.getElementById('call-ch-name').textContent='#'+chName;
+  if (localStream) {
+    const lv=document.getElementById('local-vid'); lv.srcObject=localStream; lv.play().catch(()=>{});
+    document.getElementById('no-cam-self').classList.toggle('show',!camOn);
+  }
+  document.getElementById('mic-btn').className='ctrl-btn mic'+(micOn?'':' off');
+  document.getElementById('mic-btn').textContent=micOn?'🎙️':'🔇';
+  document.getElementById('cam-btn').className='ctrl-btn cam'+(camOn?'':' off');
+  document.getElementById('cam-btn').textContent=camOn?'📷':'🚫';
+  startTimer();
+}
+function hideCallOverlay() {
+  ['call-overlay','ring-panel','call-panel'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+function startTimer() {
+  stopTimer(); timerStart=Date.now();
+  timerInterval=setInterval(()=>{
+    const e=Math.floor((Date.now()-timerStart)/1000);
+    document.getElementById('call-timer').textContent=Math.floor(e/60)+':'+String(e%60).padStart(2,'0');
+  },1000);
+}
+function stopTimer() {
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  document.getElementById('call-timer').textContent='0:00';
+}
+
+// ── DRAG PIP ──────────────────────────────────────────────────────────────────
+(function(){
+  const pip=document.getElementById('self-pip');
+  let drag=false,ox=0,oy=0;
+  pip.addEventListener('mousedown',e=>{drag=true;ox=e.clientX-pip.offsetLeft;oy=e.clientY-pip.offsetTop;pip.style.bottom='auto';pip.style.right='auto';e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(!drag)return;pip.style.left=(e.clientX-ox)+'px';pip.style.top=(e.clientY-oy)+'px';});
+  document.addEventListener('mouseup',()=>drag=false);
+})();
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────────────────────────
+function toggleSidebar(force) {
+  const sb = document.getElementById('sidebar');
+  const scrim = document.getElementById('sb-scrim');
+  const open = force!==undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  scrim.classList.toggle('show', open);
+}
+
+// ── CHANNEL ───────────────────────────────────────────────────────────────────
+function leaveChannel() {
+  if (!activeChannel) return;
+  if (callState!=='idle'&&callChannel===activeChannel) hangUp();
+  publishPresence(activeChannel,'leave');
+  if(connected){try{client.unsubscribe(channels[activeChannel].topic);}catch(e){}}
+  delete channels[activeChannel]; activeChannel=null;
+  document.getElementById('ch-hdr').classList.remove('show');
+  document.getElementById('input-wrap').classList.remove('show');
+  document.getElementById('msgs').innerHTML='';
+  document.getElementById('welcome').style.display='flex';
+  renderSidebar();
+}
+async function sendMsg() {
+  const f=document.getElementById('mf'); const text=f.value.trim();
+  if(!text||!activeChannel)return;
+  if(!connected){toast('Not connected');return;}
+  f.value='';f.style.height='auto';
+  const ok=await publishMsg(activeChannel,text);
+  addChatMsg(activeChannel,myName,text,true);
+  if(!ok)toast('Message may not have sent');
+}
+function switchChannel(chName) {
+  activeChannel=chName; channels[chName].unread=0;
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('ch-hdr').classList.add('show');
+  document.getElementById('input-wrap').classList.add('show');
+  document.getElementById('hdr-name').textContent='#'+chName;
+  document.getElementById('mf').placeholder='Message #'+chName;
+  const msgs=document.getElementById('msgs'); msgs.innerHTML='';
+  addSysEl('🔒 End-to-end encrypted. Only members with the right password can read.');
+  (channels[chName].msgs||[]).forEach(m=>appendMsg(m));
+  msgs.scrollTop=msgs.scrollHeight;
+  updateMemberCount(chName);updateConnBadge();renderSidebar();
+  document.getElementById('mf').focus();
+  toggleSidebar(false);
+}
+function updateMemberCount(chName) {
+  if(activeChannel!==chName)return;
+  const n=Object.keys(channels[chName].members).length+1;
+  const b=document.getElementById('conn-badge');
+  if(connected){b.className='conn-badge ok';b.textContent=n+(n===1?' member':' members')+' online';}
+  else{b.className='conn-badge bad';b.textContent='offline';}
+}
+function updateConnBadge(){if(activeChannel)updateMemberCount(activeChannel);}
+function renderSidebar() {
+  const list=document.getElementById('ch-list'); list.innerHTML='';
+  Object.keys(channels).forEach(chName=>{
+    const ch=channels[chName]; const live=Object.keys(ch.members).length>0;
+    const d=document.createElement('div');
+    d.className='ch-item'+(activeChannel===chName?' active':''); d.onclick=()=>switchChannel(chName);
+    d.innerHTML=`<span class="ch-hash">#</span><span class="ch-name-tx">${esc(chName)}</span><span class="ch-dot${live?' live':''}"></span>${ch.unread?`<span class="ch-badge">${ch.unread}</span>`:''}`;
+    list.appendChild(d);
+  });
+}
+function addChatMsg(chName,name,text,isMine) {
+  const msg={name,text,isMine,time:Date.now()};
+  channels[chName].msgs.push(msg);
+  if(activeChannel!==chName){channels[chName].unread=(channels[chName].unread||0)+1;renderSidebar();}
+  else{appendMsg(msg);document.getElementById('msgs').scrollTop=9999;}
+}
+function getColor(name){if(!nameColorMap[name])nameColorMap[name]=AV[Object.keys(nameColorMap).length%AV.length];return nameColorMap[name];}
+function appendMsg(msg) {
+  const time=new Date(msg.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const color=msg.isMine?'a1':getColor(msg.name);
+  const d=document.createElement('div'); d.className='msg-row';
+  d.innerHTML=`<div class="av ${color}">${(msg.name||'?')[0].toUpperCase()}</div><div class="msg-body"><div class="msg-head"><span class="msg-author" style="color:${msg.isMine?'var(--gr)':'var(--tx)'}">${esc(msg.name)}</span><span class="msg-ts">${time}</span></div><div class="msg-text">${esc(msg.text)}</div></div>`;
+  document.getElementById('msgs').appendChild(d);
+}
+function addSys(chName,text){if(activeChannel===chName){addSysEl(text);document.getElementById('msgs').scrollTop=9999;}}
+function addSysEl(text){const d=document.createElement('div');d.className='sys';d.textContent=text;document.getElementById('msgs').appendChild(d);}
+function setStatus(state,text){
+  document.getElementById('sb-dot').className='sb-dot '+(state==='ok'?'ok':state==='bad'?'bad':'');
+  document.getElementById('sb-txt').textContent=text||(state==='ok'?'Connected':state==='bad'?'Disconnected':'Connecting…');
+  document.getElementById('profile-dot').classList.toggle('on', state==='ok');
+}
+function openModal(){
+  document.getElementById('mbg').classList.add('show');
+  if(myName)document.getElementById('in-name').value=myName;
+  setTimeout(()=>(myName?document.getElementById('in-ch'):document.getElementById('in-name')).focus(),60);
+}
+function closeModal(){
+  document.getElementById('mbg').classList.remove('show');
+  document.getElementById('join-btn').disabled=false;
+  document.getElementById('join-btn').textContent='Join';
+}
+document.getElementById('mbg').addEventListener('click',e=>{if(e.target===document.getElementById('mbg'))closeModal();});
+document.getElementById('mf').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
+document.getElementById('mf').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
+['in-name','in-ch','in-pw'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('join-btn').click();}));
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let toastT;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3000);}
+window.addEventListener('beforeunload',()=>{Object.keys(channels).forEach(ch=>publishPresence(ch,'leave'));if(callState!=='idle')hangUp();});
+connectMQTT();
+setTimeout(openModal,200);
+</script>
+</body>
+</html>
